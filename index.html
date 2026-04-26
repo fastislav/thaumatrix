@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🔮 Thaumatrix — Резонансный эзотерический движок</title>
-  <meta name="description" content="Где нумерология, астрология, Матрица Судьбы, Таро и руны сходятся в один голос." />
+  <meta name="description" content="Где нумерология, Матрица Судьбы, Таро, руны, эннеаграмма и китайский гороскоп сходятся в один голос." />
   
   <style>
     :root {
@@ -53,11 +53,8 @@
       animation: fall linear infinite;
     }
 
-    /* Падающие звезды (метеоры) */
     .meteor {
       position: absolute;
-      top: 50%;
-      left: 50%;
       width: 4px;
       height: 4px;
       background: #fff;
@@ -118,7 +115,7 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1000px;
       margin: 0 auto;
       padding: 2rem;
       position: relative;
@@ -223,29 +220,73 @@
     .result-label { font-size: 0.85rem; color: var(--text-muted); }
 
     .resonance-box {
-      background: linear-gradient(135deg, rgba(157, 78, 221, 0.15), rgba(255, 209, 102, 0.05));
-      border: 1px solid var(--accent);
+      background: linear-gradient(135deg, rgba(157, 78, 221, 0.2), rgba(255, 209, 102, 0.1));
+      border: 2px solid var(--accent);
       border-radius: var(--radius);
-      padding: 2rem;
+      padding: 2.5rem;
       margin-top: 2rem;
       text-align: center;
       position: relative;
       overflow: hidden;
+      animation: pulse 3s ease-in-out infinite;
     }
-    .resonance-text { font-size: 1.15rem; line-height: 1.8; margin-bottom: 1rem; font-style: italic; }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(157, 78, 221, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(157, 78, 221, 0.6); }
+    }
+
+    .resonance-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 10px rgba(255, 209, 102, 0.5);
+    }
+
+    .resonance-text {
+      font-size: 1.2rem;
+      line-height: 1.9;
+      margin-bottom: 1.5rem;
+      font-style: italic;
+      color: var(--text-main);
+    }
+
+    .resonance-highlights {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      justify-content: center;
+      margin: 1.5rem 0;
+    }
+
+    .highlight-tag {
+      background: rgba(197, 160, 255, 0.2);
+      border: 1px solid var(--accent);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      color: var(--accent);
+    }
+
     .confidence {
       display: inline-block;
       background: var(--success);
       color: #000;
-      padding: 0.4rem 1rem;
+      padding: 0.5rem 1.2rem;
       border-radius: 20px;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      margin-top: 1rem;
     }
 
     footer { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 0.85rem; position: relative; z-index: 10; }
     
-    @media (max-width: 600px) { .logo { font-size: 2rem; } .input-section { padding: 1.5rem; } }
+    @media (max-width: 600px) { 
+      .logo { font-size: 2rem; } 
+      .input-section { padding: 1.5rem; }
+      .resonance-text { font-size: 1rem; }
+    }
   </style>
 </head>
 <body>
@@ -271,7 +312,6 @@
         </div>
         <div class="input-group">
           <label for="birthTime">⏰ Время рождения (ЧЧ:ММ:СС)</label>
-          <!-- ✅ ДОБАВЛЕНО step="1" для секунд -->
           <input type="time" id="birthTime" step="1" placeholder="12:00:00" />
         </div>
       </div>
@@ -302,13 +342,24 @@
       </div>
 
       <div class="module-card">
+        <div class="module-title">🌀 Эннеаграмма</div>
+        <div class="result-grid" id="enneagramResults"></div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-title">🐉 Китайский гороскоп</div>
+        <div class="result-grid" id="chineseResults"></div>
+      </div>
+
+      <div class="module-card">
         <div class="module-title">📊 Биоритмы</div>
         <div class="result-grid" id="bioResults"></div>
       </div>
 
       <div class="resonance-box" id="resonanceBox">
-        <div class="resonance-title">🌌 Резонансный Итог</div>
+        <div class="resonance-title">🌌 РЕЗОНАНСНЫЙ ИТОГ</div>
         <div class="resonance-text" id="resonanceText"></div>
+        <div class="resonance-highlights" id="resonanceHighlights"></div>
         <div class="confidence" id="confidenceLevel"></div>
       </div>
     </section>
@@ -323,16 +374,14 @@
     // === ГЕНЕРАЦИЯ ЗВЕЗД И МЕТЕОРОВ ===
     function createStars() {
       const container = document.getElementById('starsContainer');
-      // Обычные звезды
       for (let i = 0; i < 100; i++) {
         const star = document.createElement('div');
         star.className = 'star';
         star.style.left = Math.random() * 100 + '%';
-        star.style.animationDuration = (Math.random() * 3 + 2) + 's'; // Скорость падения
+        star.style.animationDuration = (Math.random() * 3 + 2) + 's';
         star.style.animationDelay = Math.random() * 5 + 's';
         container.appendChild(star);
       }
-      // Метеоры (раз в несколько секунд)
       for (let i = 0; i < 5; i++) {
         const meteor = document.createElement('div');
         meteor.className = 'meteor';
@@ -344,18 +393,27 @@
     }
     createStars();
 
-    // === МОДУЛИ РАСЧЕТА (без изменений в логике) ===
+    // === МОДУЛИ ===
     const numerology = {
       calculate(date, name) {
         const [year, month, day] = date.split('-').map(Number);
         const lifePath = this.reduce(day + month + year);
         const destiny = this.reduce(this.nameToNumber(name));
-        return { lifePath, destiny, soul: Math.abs(lifePath - destiny) || 1 };
+        return { lifePath, destiny, soul: Math.abs(lifePath - destiny) || 1, personality: (lifePath + destiny) % 9 || 9 };
       },
-      reduce(num) { while(num > 9 && num !== 11 && num !== 22) num = String(num).split('').reduce((a,b)=>a+Number(b),0); return num; },
+      reduce(num) { 
+        while(num > 9 && num !== 11 && num !== 22) num = String(num).split('').reduce((a,b)=>a+Number(b),0); 
+        return num; 
+      },
       nameToNumber(name) {
         const map = {'а':1,'и':1,'с':1,'ъ':1,'б':2,'й':2,'т':2,'ы':2,'в':3,'к':3,'у':3,'ь':3,'г':4,'л':4,'ф':4,'э':4,'д':5,'м':5,'х':5,'ю':5,'е':6,'н':6,'ц':6,'я':6,'ё':7,'о':7,'ч':7,'ж':8,'п':8,'ш':8,'з':9,'р':9,'щ':9};
         let sum = 0; for(let c of name.toLowerCase()) if(map[c]) sum += map[c]; return sum || 1;
+      },
+      archetypes: {
+        1: ['Лидер', 'Новатор'], 2: ['Посредник', 'Партнёр'], 3: ['Творец', 'Оптимист'],
+        4: ['Строитель', 'Прагматик'], 5: ['Искатель', 'Свободолюбивый'], 6: ['Наставник', 'Ответственный'],
+        7: ['Мудрец', 'Аналитик'], 8: ['Управленец', 'Сила'], 9: ['Гуманист', 'Философ'],
+        11: ['Просветлённый', 'Визионер'], 22: ['Мастер', 'Реализатор']
       }
     };
 
@@ -364,7 +422,24 @@
         const [year, month, day] = date.split('-').map(Number);
         const sum = n => n > 22 ? String(n).split('').reduce((a,b)=>a+Number(b),0) : n;
         const ySum = sum(String(year).split('').reduce((a,b)=>a+Number(b),0));
-        return { day: sum(day), month: sum(month), year: ySum, center: sum(day+month+ySum), karma: sum(day+month), talent: sum(month+ySum), money: sum(day+ySum), love: sum(sum(day)+sum(month)) };
+        return { 
+          day: sum(day), month: sum(month), year: ySum, 
+          center: sum(day+month+ySum), 
+          karma: sum(day+month), 
+          talent: sum(month+ySum), 
+          money: sum(day+ySum), 
+          love: sum(sum(day)+sum(month)) 
+        };
+      },
+      archetypes: {
+        1: ['Маг', 'Сила'], 2: ['Жрица', 'Интуиция'], 3: ['Императрица', 'Изобилие'],
+        4: ['Император', 'Стабильность'], 5: ['Иерофант', 'Учение'], 6: ['Влюблённые', 'Выбор'],
+        7: ['Колесница', 'Движение'], 8: ['Справедливость', 'Баланс'], 9: ['Отшельник', 'Мудрость'],
+        10: ['Колесо', 'Судьба'], 11: ['Сила', 'Энергия'], 12: ['Повешенный', 'Трансформация'],
+        13: ['Смерть', 'Обновление'], 14: ['Умеренность', 'Гармония'], 15: ['Дьявол', 'Искушение'],
+        16: ['Башня', 'Кризис'], 17: ['Звезда', 'Надежда'], 18: ['Луна', 'Тайна'],
+        19: ['Солнце', 'Радость'], 20: ['Суд', 'Возрождение'], 21: ['Мир', 'Целостность'],
+        22: ['Шут', 'Свобода']
       }
     };
 
@@ -373,7 +448,23 @@
       calculate(date) {
         const [year, month, day] = date.split('-').map(Number);
         const bArc = (day + month + String(year).split('').reduce((a,b)=>a+Number(b),0)) % 22 || 22;
-        return { birth: bArc, birthName: this.arcanas[bArc-1], year: (day + month + new Date().getFullYear()) % 22 || 22 };
+        const pYear = (day + month + new Date().getFullYear()) % 22 || 22;
+        return { 
+          birth: bArc, 
+          birthName: this.arcanas[bArc-1], 
+          personalYear: pYear,
+          yearName: this.arcanas[pYear-1]
+        };
+      },
+      archetypes: {
+        1: ['Новатор', 'Начало'], 2: ['Мудрец', 'Знание'], 3: ['Творец', 'Изобилие'],
+        4: ['Лидер', 'Структура'], 5: ['Учитель', 'Традиция'], 6: ['Выбор', 'Отношения'],
+        7: ['Воин', 'Победа'], 8: ['Сила', 'Контроль'], 9: ['Мудрец', 'Одиночество'],
+        10: ['Судьба', 'Перемены'], 11: ['Справедливость', 'Баланс'], 12: ['Жертва', 'Новый взгляд'],
+        13: ['Трансформация', 'Конец'], 14: ['Гармония', 'Исцеление'], 15: ['Искушение', 'Страсть'],
+        16: ['Кризис', 'Прорыв'], 17: ['Надежда', 'Вдохновение'], 18: ['Иллюзия', 'Подсознание'],
+        19: ['Радость', 'Успех'], 20: ['Возрождение', 'Призвание'], 21: ['Целостность', 'Завершение'],
+        22: ['Свобода', 'Потенциал']
       }
     };
 
@@ -381,7 +472,60 @@
       names: ['Феху','Уруз','Турисаз','Ансуз','Райдо','Кеназ','Гебо','Вуньо','Хагалаз','Наутиз','Иса','Йера','Эйваз','Перт','Альгиз','Соулу','Тейваз','Беркана','Эваз','Манназ','Лагуз','Ингуз','Отал','Дагаз'],
       calculate(date) {
         const [y, m, d] = date.split('-').map(Number);
-        return { rune: this.names[(d+m+y)%24] || 'Дагаз', year: this.names[y%24] || 'Дагаз' };
+        return { 
+          birth: this.names[(d+m+y)%24] || 'Дагаз', 
+          year: this.names[y%24] || 'Дагаз',
+          index: (d+m+y)%24 + 1
+        };
+      },
+      archetypes: {
+        'Ансуз': ['Знание', 'Коммуникация'], 'Соулу': ['Успех', 'Энергия'], 
+        'Тейваз': ['Воля', 'Действие'], 'Лагуз': ['Интуиция', 'Поток'],
+        'Иса': ['Пауза', 'Концентрация'], 'Йера': ['Цикл', 'Награда']
+      }
+    };
+
+    const enneagram = {
+      types: {
+        1: { name: 'Перфекционист', wing: [9, 2], archetypes: ['Идеалист', 'Критик'] },
+        2: { name: 'Помощник', wing: [1, 3], archetypes: ['Заботливый', 'Дающий'] },
+        3: { name: 'Достиженец', wing: [2, 4], archetypes: ['Лидер', 'Успешный'] },
+        4: { name: 'Индивидуалист', wing: [3, 5], archetypes: ['Творец', 'Романтик'] },
+        5: { name: 'Наблюдатель', wing: [4, 6], archetypes: ['Мыслитель', 'Эксперт'] },
+        6: { name: 'Лоялист', wing: [5, 7], archetypes: ['Защитник', 'Скептик'] },
+        7: { name: 'Энтузиаст', wing: [6, 8], archetypes: ['Оптимист', 'Искатель'] },
+        8: { name: 'Лидер', wing: [7, 9], archetypes: ['Сила', 'Защитник'] },
+        9: { name: 'Миротворец', wing: [8, 1], archetypes: ['Гармония', 'Спокойствие'] }
+      },
+      calculate(date) {
+        const [y, m, d] = date.split('-').map(Number);
+        const type = ((d + m + String(y).split('').reduce((a,b)=>a+Number(b),0)) % 9) + 1;
+        const wingChoice = d % 2 === 0 ? 0 : 1;
+        const wing = this.types[type].wing[wingChoice];
+        return { type, name: this.types[type].name, wing, archetypes: this.types[type].archetypes };
+      }
+    };
+
+    const chineseZodiac = {
+      animals: ['Крыса','Бык','Тигр','Кролик','Дракон','Змея','Лошадь','Коза','Обезьяна','Петух','Собака','Свинья'],
+      elements: ['Дерево','Огонь','Земля','Металл','Вода'],
+      calculate(date) {
+        const year = new Date(date).getFullYear();
+        const animal = this.animals[(year - 4) % 12];
+        const element = this.elements[(year - 4) % 5];
+        const archetypes = this.getArchetypes(animal);
+        return { animal, element, year, archetypes };
+      },
+      getArchetypes(animal) {
+        const map = {
+          'Крыса': ['Хитрость', 'Адаптивность'], 'Бык': ['Сила', 'Терпение'],
+          'Тигр': ['Смелость', 'Страсть'], 'Кролик': ['Дипломатия', 'Осторожность'],
+          'Дракон': ['Мощь', 'Удача'], 'Змея': ['Мудрость', 'Интуиция'],
+          'Лошадь': ['Свобода', 'Энергия'], 'Коза': ['Творчество', 'Мягкость'],
+          'Обезьяна': ['Остроумие', 'Игривость'], 'Петух': ['Точность', 'Гордость'],
+          'Собака': ['Верность', 'Честность'], 'Свинья': ['Щедрость', 'Наслаждение']
+        };
+        return map[animal] || ['Уникальность', 'Потенциал'];
       }
     };
 
@@ -389,9 +533,64 @@
       calculate(date) {
         const birth = new Date(date), today = new Date();
         const days = Math.floor((today - birth) / 86400000);
-        return { phys: Math.round(Math.sin((2*Math.PI*days)/23)*100), emot: Math.round(Math.sin((2*Math.PI*days)/28)*100), intell: Math.round(Math.sin((2*Math.PI*days)/33)*100), intuit: Math.round(Math.sin((2*Math.PI*days)/38)*100) };
+        return { 
+          phys: Math.round(Math.sin((2*Math.PI*days)/23)*100), 
+          emot: Math.round(Math.sin((2*Math.PI*days)/28)*100), 
+          intell: Math.round(Math.sin((2*Math.PI*days)/33)*100), 
+          intuit: Math.round(Math.sin((2*Math.PI*days)/38)*100) 
+        };
       }
     };
+
+    // === РЕЗОНАНСНЫЙ ДВИЖОК ===
+    function findResonances(allResults) {
+      const allArchetypes = [];
+      
+      // Собираем все архетипы
+      if (allResults.num.archetypes) {
+        allArchetypes.push(...allResults.num.archetypes[allResults.num.lifePath] || []);
+      }
+      if (allResults.mat) {
+        Object.entries(allResults.mat).forEach(([key, val]) => {
+          if (destinyMatrix.archetypes[val]) {
+            allArchetypes.push(...destinyMatrix.archetypes[val]);
+          }
+        });
+      }
+      if (allResults.tar.archetypes) {
+        allArchetypes.push(...(allResults.tar.archetypes[allResults.tar.birth] || []));
+      }
+      if (allResults.run.archetypes) {
+        allArchetypes.push(...(allResults.run.archetypes[allResults.run.birth] || []));
+      }
+      if (allResults.enn.archetypes) {
+        allArchetypes.push(...allResults.enn.archetypes);
+      }
+      if (allResults.chin.archetypes) {
+        allArchetypes.push(...allResults.chin.archetypes);
+      }
+
+      // Считаем частоту
+      const freq = {};
+      allArchetypes.forEach(a => freq[a] = (freq[a] || 0) + 1);
+      
+      // Возвращаем повторяющиеся (2+ раза)
+      return Object.entries(freq)
+        .filter(([_, count]) => count >= 2)
+        .sort((a,b) => b[1] - a[1])
+        .map(([name]) => name);
+    }
+
+    function generateResonanceText(name, resonances, allResults) {
+      const templates = [
+        `${name}, системы сходятся. Ваш путь пронизан энергией <strong>${resonances[0] || 'глубинной трансформации'}</strong>.`,
+        `То, что казалось случайным, обретает форму. ${resonances[1] ? `Ваша сила — в ${resonances[1].toLowerCase()}.` : ''}`,
+        `Сейчас время ${allResults.bio.intuit > 50 ? 'внутреннего наблюдения и доверия интуиции' : 'активного действия и проявления воли'}.`,
+        `⚠️ Следующие 14 дней — окно высокой синхронизации. Не форсируйте события.`
+      ];
+      
+      return templates.filter(t => t.trim()).join('<br><br>');
+    }
 
     // === ГЛАВНАЯ ФУНКЦИЯ ===
     function calculateAll() {
@@ -399,36 +598,103 @@
       const date = document.getElementById('birthDate').value;
       if(!date) { alert('Введите дату рождения'); return; }
 
+      // Расчёты
       const num = numerology.calculate(date, name);
       const mat = destinyMatrix.calculate(date);
       const tar = tarot.calculate(date);
       const run = runes.calculate(date);
+      const enn = enneagram.calculate(date);
+      const chin = chineseZodiac.calculate(date);
       const bio = biorhythms.calculate(date);
 
-      // Отрисовка
-      const draw = (id, data, labels) => document.getElementById(id).innerHTML = Object.keys(data).map(k => `<div class="result-item"><div class="result-value">${data[k]}</div><div class="result-label">${labels[k]||k}</div></div>`).join('');
-      
-      draw('numerologyResults', num, {lifePath:'Путь', destiny:'Судьба', soul:'Душа'});
-      draw('matrixResults', mat, {day:'День', month:'Месяц', year:'Год', center:'Центр', karma:'Карма', talent:'Талант', money:'Деньги', love:'Любовь'});
-      document.getElementById('tarotResults').innerHTML = `<div class="result-item"><div class="result-value">${tar.birth}</div><div class="result-label">Аркан рождения<br>${tar.birthName}</div></div>`;
-      document.getElementById('runeResults').innerHTML = `<div class="result-item"><div class="result-value">ᚚ</div><div class="result-label">Руна<br>${run.rune}</div></div>`;
-      draw('bioResults', bio, {phys:'Физика', emot:'Эмоции', intell:'Интеллект', intuit:'Интуиция'});
+      const allResults = { num, mat, tar, run, enn, chin, bio };
+
+      // Отрисовка результатов
+      drawNumerology(num);
+      drawMatrix(mat);
+      drawTarot(tar);
+      drawRunes(run);
+      drawEnneagram(enn);
+      drawChinese(chin);
+      drawBiorhythms(bio);
 
       // Резонанс
-      const resonances = ['Внутренняя сила', 'Глубинная трансформация']; 
-      if(num.lifePath % 2 === 0) resonances.push('Структурность');
-      if(bio.intuit > 50) resonances.push('Высокая интуиция');
+      const resonances = findResonances(allResults);
+      const text = generateResonanceText(name, resonances, allResults);
+      const confidence = Math.min(98, 60 + resonances.length * 12);
 
-      document.getElementById('resonanceText').innerHTML = `
-        <strong>${name}</strong>, системы сходятся.<br>
-        Ваш путь (${num.lifePath}) резонирует с энергией <strong>${tar.birthName}</strong>.<br>
-        Сегодня ${bio.intuit > 0 ? 'энергия интуиции на подъеме' : 'время для физического действия'}.<br>
-        <em>Руна дня ${run.rune} подсказывает: ${run.rune === 'Иса' ? 'Замрите и подождите' : 'Действуйте решительно'}.</em>
-      `;
-      document.getElementById('confidenceLevel').textContent = `Синхронизация: ${Math.floor(Math.random()*20 + 80)}%`;
+      document.getElementById('resonanceText').innerHTML = text;
+      document.getElementById('resonanceHighlights').innerHTML = resonances.slice(0, 6)
+        .map(r => `<span class="highlight-tag">✨ ${r}</span>`).join('');
+      document.getElementById('confidenceLevel').textContent = `Резонанс систем: ${confidence}%`;
 
+      // Показ
       document.getElementById('results').classList.add('show');
-      document.getElementById('results').scrollIntoView({behavior:'smooth'});
+      setTimeout(() => {
+        document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+      }, 300);
+    }
+
+    // === ОТРИСОВКА ===
+    function drawNumerology(data) {
+      const arch = numerology.archetypes[data.lifePath] || ['Путь', 'Судьба'];
+      document.getElementById('numerologyResults').innerHTML = `
+        <div class="result-item"><div class="result-value">${data.lifePath}</div><div class="result-label">Путь жизни<br><small>${arch[0]}</small></div></div>
+        <div class="result-item"><div class="result-value">${data.destiny}</div><div class="result-label">Судьба<br><small>Число имени</small></div></div>
+        <div class="result-item"><div class="result-value">${data.soul}</div><div class="result-label">Душа<br><small>Внутреннее</small></div></div>
+        <div class="result-item"><div class="result-value">${data.personality}</div><div class="result-label">Личность<br><small>Внешнее</small></div></div>
+      `;
+    }
+
+    function drawMatrix(data) {
+      document.getElementById('matrixResults').innerHTML = `
+        <div class="result-item"><div class="result-value">${data.day}</div><div class="result-label">День<br>Социум</div></div>
+        <div class="result-item"><div class="result-value">${data.month}</div><div class="result-label">Месяц<br>Талант</div></div>
+        <div class="result-item"><div class="result-value">${data.year}</div><div class="result-label">Год<br>Карма</div></div>
+        <div class="result-item"><div class="result-value" style="color:var(--gold)">${data.center}</div><div class="result-label">Центр<br>Ядро</div></div>
+        <div class="result-item"><div class="result-value">${data.karma}</div><div class="result-label">Карма</div></div>
+        <div class="result-item"><div class="result-value">${data.talent}</div><div class="result-label">Талант</div></div>
+        <div class="result-item"><div class="result-value">${data.money}</div><div class="result-label">Деньги</div></div>
+        <div class="result-item"><div class="result-value">${data.love}</div><div class="result-label">Отношения</div></div>
+      `;
+    }
+
+    function drawTarot(data) {
+      document.getElementById('tarotResults').innerHTML = `
+        <div class="result-item"><div class="result-value">${data.birth}</div><div class="result-label">Аркан рождения<br><strong>${data.birthName}</strong></div></div>
+        <div class="result-item"><div class="result-value">${data.personalYear}</div><div class="result-label">Личный год<br><strong>${data.yearName}</strong></div></div>
+      `;
+    }
+
+    function drawRunes(data) {
+      document.getElementById('runeResults').innerHTML = `
+        <div class="result-item"><div class="result-value">ᚚ</div><div class="result-label">Руна рождения<br><strong>${data.birth}</strong></div></div>
+        <div class="result-item"><div class="result-value">ᛟ</div><div class="result-label">Руна года<br><strong>${data.year}</strong></div></div>
+      `;
+    }
+
+    function drawEnneagram(data) {
+      document.getElementById('enneagramResults').innerHTML = `
+        <div class="result-item"><div class="result-value">${data.type}</div><div class="result-label">Тип<br><strong>${data.name}</strong></div></div>
+        <div class="result-item"><div class="result-value">${data.wing}</div><div class="result-label">Крыло<br><small>${data.archetypes.join(', ')}</small></div></div>
+      `;
+    }
+
+    function drawChinese(data) {
+      document.getElementById('chineseResults').innerHTML = `
+        <div class="result-item"><div class="result-value">🐉</div><div class="result-label">Знак года<br><strong>${data.animal}</strong></div></div>
+        <div class="result-item"><div class="result-value">🔥</div><div class="result-label">Стихия<br><strong>${data.element}</strong></div></div>
+      `;
+    }
+
+    function drawBiorhythms(data) {
+      const getColor = v => v > 0 ? 'var(--success)' : '#e74c3c';
+      document.getElementById('bioResults').innerHTML = `
+        <div class="result-item"><div class="result-value" style="color:${getColor(data.phys)}">${data.phys}%</div><div class="result-label">Физика</div></div>
+        <div class="result-item"><div class="result-value" style="color:${getColor(data.emot)}">${data.emot}%</div><div class="result-label">Эмоции</div></div>
+        <div class="result-item"><div class="result-value" style="color:${getColor(data.intell)}">${data.intell}%</div><div class="result-label">Интеллект</div></div>
+        <div class="result-item"><div class="result-value" style="color:${getColor(data.intuit)}">${data.intuit}%</div><div class="result-label">Интуиция</div></div>
+      `;
     }
   </script>
 </body>
