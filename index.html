@@ -4,177 +4,313 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🔮 Thaumatrix — Астрология, Human Design и Резонанс</title>
+  <meta name="description" content="Где нумерология, Матрица Судьбы, Таро, руны, эннеаграмма, астрология и Human Design сходятся в один голос." />
+  
   <style>
     :root {
-      --bg-deep: #050508; --glass: rgba(255, 255, 255, 0.05);
-      --text-main: #e5e5e5; --accent: #c5a0ff; --gold: #ffd166;
-      --radius: 16px; --success: #06d6a0;
+      --bg-deep: #050508;
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --text-main: #e5e5e5;
+      --text-muted: #a0a0a0;
+      --accent: #c5a0ff;
+      --accent-glow: #9d4edd;
+      --gold: #ffd166;
+      --gold-glow: #e09f3e;
+      --success: #06d6a0;
+      --radius: 16px;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    
     body {
       background: radial-gradient(circle at 50% 0%, #1a0b2e 0%, #050508 60%);
-      color: var(--text-main); font-family: 'Inter', system-ui, sans-serif;
-      min-height: 100vh; overflow-x: hidden; line-height: 1.6;
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+      position: relative;
     }
-    /* Фон со звездами */
-    .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-    .star { position: absolute; background: white; border-radius: 50%; animation: fall linear infinite; opacity: 0; }
-    @keyframes fall { 0% { transform: translateY(-100vh); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }
 
-    header { position: relative; z-index: 10; text-align: center; padding: 2rem 1rem; }
-    .logo { font-size: 2.5rem; background: linear-gradient(135deg, var(--gold), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; }
-    
+    /* === МАГИЧЕСКИЙ ЗВЕЗДОПАД === */
+    .stars-container {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px; height: 2px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0;
+      animation: fall linear infinite;
+    }
+
+    .meteor {
+      position: absolute;
+      width: 4px; height: 4px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.1), 0 0 0 8px rgba(255,255,255,0.1), 0 0 20px rgba(255,255,255,1);
+      animation: meteor 5s linear infinite;
+      opacity: 0;
+    }
+    .meteor::before {
+      content: ''; position: absolute; top: 50%; transform: translateY(-50%);
+      width: 300px; height: 1px; background: linear-gradient(90deg, #fff, transparent); right: 1px;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+      10% { opacity: 0.8; } 90% { opacity: 0.8; }
+      100% { transform: translateY(100vh) scale(1); opacity: 0; }
+    }
+    @keyframes meteor {
+      0% { transform: rotate(215deg) translateX(0); opacity: 0; }
+      10% { opacity: 1; } 70% { opacity: 1; }
+      100% { transform: rotate(215deg) translateX(-1000px); opacity: 0; }
+    }
+
+    /* UI Styles */
+    header { position: relative; z-index: 10; text-align: center; padding: 3rem 1rem 1rem; }
+    .logo {
+      font-family: 'Playfair Display', serif; font-size: 2.5rem;
+      background: linear-gradient(135deg, var(--gold), var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(157, 78, 221, 0.3); margin-bottom: 0.5rem;
+    }
+    .tagline { color: var(--text-muted); font-size: 1rem; font-style: italic; letter-spacing: 1px; }
+
     .container { max-width: 1000px; margin: 0 auto; padding: 2rem; position: relative; z-index: 10; }
-    .input-section {
-      background: rgba(15, 15, 20, 0.6); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: var(--radius); padding: 2rem; backdrop-filter: blur(15px); margin-bottom: 2rem;
-    }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-    label { display: block; color: var(--gold); font-size: 0.9rem; margin-bottom: 0.3rem; }
-    input {
-      width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 1rem;
-    }
-    input:focus { outline: none; border-color: var(--accent); }
     
-    .geo-input-wrapper { position: relative; }
-    .geo-btn {
-      position: absolute; right: 5px; top: 28px;
-      background: var(--accent); border: none; border-radius: 8px;
-      padding: 0.4rem 0.8rem; cursor: pointer; color: #000; font-weight: bold; font-size: 0.8rem;
+    .input-section {
+      background: rgba(15, 15, 20, 0.6); border: 1px solid var(--glass-border);
+      border-radius: var(--radius); padding: 2.5rem; backdrop-filter: blur(15px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin-bottom: 3rem;
+      border-top: 1px solid rgba(255,255,255,0.2);
     }
-    .geo-status { font-size: 0.75rem; color: var(--success); margin-top: 4px; min-height: 16px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .input-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    label { font-size: 0.9rem; color: var(--gold); font-weight: 500; letter-spacing: 0.5px; }
+    
+    input, select {
+      padding: 1rem; background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
+      color: #fff; font-size: 1rem; transition: all 0.3s;
+    }
+    input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 15px rgba(157, 78, 221, 0.3); background: rgba(255, 255, 255, 0.08); }
+    
+    .geo-wrapper { position: relative; }
+    .geo-btn {
+      position: absolute; right: 8px; top: 42px;
+      background: var(--gold); border: none; border-radius: 8px;
+      padding: 0.5rem 1rem; cursor: pointer; color: #000; 
+      font-weight: 700; font-size: 0.85rem; transition: transform 0.2s;
+    }
+    .geo-btn:hover { transform: scale(1.05); }
+    .geo-status { font-size: 0.8rem; margin-top: 5px; min-height: 35px; line-height: 1.4; }
+    .geo-status.success { color: var(--success); }
+    .geo-status.error { color: #e74c3c; }
 
     .calculate-btn {
-      width: 100%; padding: 1.2rem; background: linear-gradient(135deg, #6a11cb, #2575fc);
-      color: #fff; font-weight: 700; font-size: 1.1rem; border: none; border-radius: 12px; cursor: pointer;
-      transition: transform 0.2s; text-transform: uppercase; letter-spacing: 1px;
+      width: 100%; padding: 1.2rem;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: #fff; font-weight: 700; font-size: 1.1rem; border: none;
+      border-radius: 12px; cursor: pointer; transition: all 0.3s;
+      text-transform: uppercase; letter-spacing: 2px; position: relative; overflow: hidden;
     }
-    .calculate-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(106, 17, 203, 0.4); }
+    .calculate-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(106, 17, 203, 0.5); }
 
-    .results-section { display: none; animation: fadeIn 0.6s ease-out; }
+    .results-section { display: none; animation: fadeIn 0.8s ease-out; }
     .results-section.show { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
     .module-card {
-      background: rgba(20, 20, 25, 0.7); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(20, 20, 25, 0.7); border: 1px solid var(--glass-border);
       border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem;
+      backdrop-filter: blur(10px);
     }
-    .module-title { font-size: 1.3rem; color: var(--gold); margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
-    
-    .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; }
+    .module-title {
+      font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold);
+      margin-bottom: 1rem; display: flex; align-items: center; gap: 0.8rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;
+    }
+    .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
     .result-item {
-      background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 10px; text-align: center;
-      border: 1px solid rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 10px;
+      text-align: center; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.2s;
     }
-    .result-value { font-size: 1.5rem; font-weight: 700; color: var(--accent); margin-bottom: 0.2rem; }
-    .result-label { font-size: 0.8rem; color: #a0a0a0; }
+    .result-item:hover { transform: scale(1.02); background: rgba(255,255,255,0.06); }
+    .result-value { font-size: 1.8rem; font-weight: 700; color: var(--accent); margin-bottom: 0.3rem; }
+    .result-label { font-size: 0.85rem; color: var(--text-muted); }
 
     .resonance-box {
       background: linear-gradient(135deg, rgba(157, 78, 221, 0.2), rgba(255, 209, 102, 0.1));
-      border: 2px solid var(--accent); border-radius: var(--radius); padding: 2rem; text-align: center;
-      animation: pulse 4s infinite;
+      border: 2px solid var(--accent); border-radius: var(--radius);
+      padding: 2.5rem; margin-top: 2rem; text-align: center;
+      position: relative; overflow: hidden; animation: pulse 3s ease-in-out infinite;
     }
-    @keyframes pulse { 0%, 100% { box-shadow: 0 0 20px rgba(157, 78, 221, 0.2); } 50% { box-shadow: 0 0 40px rgba(157, 78, 221, 0.5); } }
-    .resonance-text { font-size: 1.1rem; line-height: 1.8; margin-bottom: 1rem; font-style: italic; }
-    .confidence { display: inline-block; background: var(--success); color: #000; padding: 0.4rem 1rem; border-radius: 20px; font-weight: 700; font-size: 0.85rem; }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(157, 78, 221, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(157, 78, 221, 0.6); }
+    }
+    .resonance-title {
+      font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--gold);
+      margin-bottom: 1.5rem; text-shadow: 0 0 10px rgba(255, 209, 102, 0.5);
+    }
+    .resonance-text { font-size: 1.2rem; line-height: 1.9; margin-bottom: 1.5rem; font-style: italic; color: var(--text-main); }
+    .resonance-highlights { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; margin: 1.5rem 0; }
+    .highlight-tag {
+      background: rgba(197, 160, 255, 0.2); border: 1px solid var(--accent);
+      padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; color: var(--accent);
+    }
+    .confidence {
+      display: inline-block; background: var(--success); color: #000;
+      padding: 0.5rem 1.2rem; border-radius: 20px; font-weight: 700; font-size: 0.9rem; margin-top: 1rem;
+    }
 
-    footer { text-align: center; padding: 2rem; color: #666; font-size: 0.8rem; }
-    @media (max-width: 600px) { .logo { font-size: 2rem; } }
+    footer { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 0.85rem; position: relative; z-index: 10; }
+    @media (max-width: 600px) { 
+      .logo { font-size: 2rem; } .input-section { padding: 1.5rem; }
+      .resonance-text { font-size: 1rem; }
+    }
   </style>
 </head>
 <body>
 
-  <div class="stars-container" id="stars"></div>
+  <div class="stars-container" id="starsContainer"></div>
 
   <header>
     <div class="logo">🔮 Thaumatrix</div>
-    <p style="color: #a0a0a0; font-style: italic;">Астрология, Human Design и Резонанс</p>
+    <div class="tagline">Где системы сходятся в один голос</div>
   </header>
 
   <div class="container">
     <section class="input-section">
       <div class="form-grid">
-        <div>
-          <label>✨ Полное имя</label>
-          <input type="text" id="name" placeholder="Иван" />
+        <div class="input-group">
+          <label for="fullName">✨ Ваше полное имя</label>
+          <input type="text" id="fullName" placeholder="Иван Иванов" />
         </div>
-        <div>
-          <label>📅 Дата рождения</label>
-          <input type="date" id="date" />
+        <div class="input-group">
+          <label for="birthDate">📅 Дата рождения</label>
+          <input type="date" id="birthDate" />
         </div>
-        <div>
-          <label>⏰ Время рождения</label>
-          <input type="time" id="time" step="1" />
+        <div class="input-group">
+          <label for="birthTime">⏰ Время рождения (ЧЧ:ММ:СС)</label>
+          <input type="time" id="birthTime" step="1" placeholder="12:00:00" />
         </div>
-        <div class="geo-input-wrapper">
-          <label>📍 Город рождения</label>
-          <input type="text" id="place" placeholder="Москва" />
+        <div class="input-group geo-wrapper">
+          <label for="birthPlace">📍 Город рождения</label>
+          <input type="text" id="birthPlace" placeholder="Москва" />
           <button class="geo-btn" onclick="findCoordinates()">📍 Найти</button>
           <div class="geo-status" id="geoStatus"></div>
         </div>
       </div>
-      <button class="calculate-btn" onclick="calculateAll()">🔮 Активировать Резонанс</button>
+      <button class="calculate-btn" onclick="calculateAll()">🔮 Активировать резонанс</button>
     </section>
 
     <section class="results-section" id="results">
-      
-      <!-- Astrology -->
+      <div class="module-card">
+        <div class="module-title">🔢 Нумерология</div>
+        <div class="result-grid" id="numerologyResults"></div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-title">🌀 Матрица Судьбы</div>
+        <div class="result-grid" id="matrixResults"></div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-title">🃏 Таро</div>
+        <div class="result-grid" id="tarotResults"></div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-title">ᚚ Руны</div>
+        <div class="result-grid" id="runeResults"></div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-title">🌀 Эннеаграмма</div>
+        <div class="result-grid" id="enneagramResults"></div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-title">🐉 Китайский гороскоп</div>
+        <div class="result-grid" id="chineseResults"></div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-title">📊 Биоритмы</div>
+        <div class="result-grid" id="bioResults"></div>
+      </div>
+
       <div class="module-card">
         <div class="module-title">🌌 Западная Астрология</div>
-        <div class="result-grid" id="astroRes"></div>
+        <div class="result-grid" id="astroResults"></div>
       </div>
 
-      <!-- Human Design -->
       <div class="module-card">
         <div class="module-title">🧬 Human Design</div>
-        <div class="result-grid" id="hdRes"></div>
+        <div class="result-grid" id="hdResults"></div>
       </div>
 
-      <!-- Matrix & Numerology Combined -->
-      <div class="module-card">
-        <div class="module-title">🔢 Матрица & Нумерология</div>
-        <div class="result-grid" id="numRes"></div>
-      </div>
-
-      <!-- Resonance -->
-      <div class="resonance-box">
-        <h2 style="color: var(--gold); margin-bottom: 1rem;">🌌 Резонансный Итог</h2>
-        <div class="resonance-text" id="resText"></div>
-        <div class="confidence" id="confLevel"></div>
+      <div class="resonance-box" id="resonanceBox">
+        <div class="resonance-title">🌌 РЕЗОНАНСНЫЙ ИТОГ</div>
+        <div class="resonance-text" id="resonanceText"></div>
+        <div class="resonance-highlights" id="resonanceHighlights"></div>
+        <div class="confidence" id="confidenceLevel"></div>
       </div>
     </section>
 
-    <footer>Thaumatrix © 2026 | Инструмент самопознания</footer>
+    <footer>
+      Thaumatrix — инструмент для самопознания. Не заменяет консультацию специалиста.<br>
+      Создано с магией и точностью | © 2026
+    </footer>
   </div>
 
   <script>
-    // === ФОН ===
-    const sC = document.getElementById('stars');
-    for(let i=0; i<80; i++) {
-      const s = document.createElement('div');
-      s.className = 'star';
-      s.style.left = Math.random()*100 + '%';
-      s.style.width = s.style.height = (Math.random()*2 + 1) + 'px';
-      s.style.animationDuration = (Math.random()*3 + 2) + 's';
-      s.style.animationDelay = Math.random()*5 + 's';
-      sC.appendChild(s);
+    // === ГЕНЕРАЦИЯ ЗВЕЗД И МЕТЕОРОВ ===
+    function createStars() {
+      const container = document.getElementById('starsContainer');
+      for (let i = 0; i < 100; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        star.style.animationDelay = Math.random() * 5 + 's';
+        container.appendChild(star);
+      }
+      for (let i = 0; i < 5; i++) {
+        const meteor = document.createElement('div');
+        meteor.className = 'meteor';
+        meteor.style.left = Math.random() * 100 + '%';
+        meteor.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        meteor.style.animationDelay = (Math.random() * 10 + i * 5) + 's';
+        container.appendChild(meteor);
+      }
     }
+    createStars();
 
-    // === ГЛОБАЛЬНЫЕ ДАННЫЕ ГЕО ===
-    let geoData = { lat: 55.75, lon: 37.61, name: "Москва" }; // По умолчанию Москва
-
-    // === ГЕОКОДИНГ (ПОИСК КООРДИНАТ) ===
+    // === ГЕОЛОКАЦИЯ ===
+    let geoData = { lat: 55.75, lon: 37.61, name: "Москва" };
+    
     async function findCoordinates() {
-      const city = document.getElementById('place').value;
+      const city = document.getElementById('birthPlace').value;
       const status = document.getElementById('geoStatus');
+      if (!city) { status.textContent = "❌ Введите название города"; status.className = "geo-status error"; return; }
       
-      if (!city) { status.textContent = "Введите название города"; status.style.color = "red"; return; }
-      
-      status.textContent = "⏳ Поиск спутников...";
+      status.textContent = "⏳ Поиск координат...";
+      status.className = "geo-status";
       
       try {
-        // Используем бесплатный API OpenStreetMap
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}&limit=1`);
         const data = await response.json();
         
@@ -183,148 +319,334 @@
           geoData = {
             lat: parseFloat(place.lat),
             lon: parseFloat(place.lon),
-            name: place.display_name.split(',')[0] // Берем только первое имя (город)
+            name: place.display_name.split(',')[0]
           };
-          
-          // Показываем пользователю, что нашли
           const parts = place.display_name.split(',');
           const region = parts[1] ? parts[1].trim() : '';
           const country = parts[parts.length-1] ? parts[parts.length-1].trim() : '';
-          
-          status.innerHTML = `✅ Найдено: <strong>${geoData.name}</strong>, ${region}, ${country}<br><small>Lat: ${geoData.lat.toFixed(2)}, Lon: ${geoData.lon.toFixed(2)}</small>`;
-          status.style.color = "var(--success)";
+          status.innerHTML = `✅ <strong>${geoData.name}</strong><br><small>${region}, ${country}<br>📍 ${geoData.lat.toFixed(2)}°, ${geoData.lon.toFixed(2)}°</small>`;
+          status.className = "geo-status success";
         } else {
-          status.textContent = "❌ Город не найден. Попробуйте уточнить.";
-          status.style.color = "red";
+          status.textContent = "❌ Город не найден";
+          status.className = "geo-status error";
         }
       } catch (error) {
-        status.textContent = "❌ Ошибка сети.";
-        status.style.color = "red";
+        status.textContent = "❌ Ошибка сети";
+        status.className = "geo-status error";
       }
     }
 
-    // === ЛОГИКА АСТРОЛОГИИ (С УЧЕТОМ КООРДИНАТ) ===
-    const Astro = {
+    // === МОДУЛИ ===
+    const numerology = {
+      calculate(date, name) {
+        const [year, month, day] = date.split('-').map(Number);
+        const lifePath = this.reduce(day + month + year);
+        const destiny = this.reduce(this.nameToNumber(name));
+        return { lifePath, destiny, soul: Math.abs(lifePath - destiny) || 1, personality: (lifePath + destiny) % 9 || 9 };
+      },
+      reduce(num) { while(num > 9 && num !== 11 && num !== 22) num = String(num).split('').reduce((a,b)=>a+Number(b),0); return num; },
+      nameToNumber(name) {
+        const map = {'а':1,'и':1,'с':1,'ъ':1,'б':2,'й':2,'т':2,'ы':2,'в':3,'к':3,'у':3,'ь':3,'г':4,'л':4,'ф':4,'э':4,'д':5,'м':5,'х':5,'ю':5,'е':6,'н':6,'ц':6,'я':6,'ё':7,'о':7,'ч':7,'ж':8,'п':8,'ш':8,'з':9,'р':9,'щ':9};
+        let sum = 0; for(let c of name.toLowerCase()) if(map[c]) sum += map[c]; return sum || 1;
+      },
+      archetypes: {
+        1: ['Лидер', 'Новатор'], 2: ['Посредник', 'Партнёр'], 3: ['Творец', 'Оптимист'],
+        4: ['Строитель', 'Прагматик'], 5: ['Искатель', 'Свободолюбивый'], 6: ['Наставник', 'Ответственный'],
+        7: ['Мудрец', 'Аналитик'], 8: ['Управленец', 'Сила'], 9: ['Гуманист', 'Философ'],
+        11: ['Просветлённый', 'Визионер'], 22: ['Мастер', 'Реализатор']
+      }
+    };
+
+    const destinyMatrix = {
+      calculate(date) {
+        const [year, month, day] = date.split('-').map(Number);
+        const sum = n => n > 22 ? String(n).split('').reduce((a,b)=>a+Number(b),0) : n;
+        const ySum = sum(String(year).split('').reduce((a,b)=>a+Number(b),0));
+        return { day: sum(day), month: sum(month), year: ySum, center: sum(day+month+ySum), karma: sum(day+month), talent: sum(month+ySum), money: sum(day+ySum), love: sum(sum(day)+sum(month)) };
+      },
+      archetypes: {
+        1: ['Маг', 'Сила'], 2: ['Жрица', 'Интуиция'], 3: ['Императрица', 'Изобилие'],
+        4: ['Император', 'Стабильность'], 5: ['Иерофант', 'Учение'], 6: ['Влюблённые', 'Выбор'],
+        7: ['Колесница', 'Движение'], 8: ['Справедливость', 'Баланс'], 9: ['Отшельник', 'Мудрость'],
+        10: ['Колесо', 'Судьба'], 11: ['Сила', 'Энергия'], 12: ['Повешенный', 'Трансформация'],
+        13: ['Смерть', 'Обновление'], 14: ['Умеренность', 'Гармония'], 15: ['Дьявол', 'Искушение'],
+        16: ['Башня', 'Кризис'], 17: ['Звезда', 'Надежда'], 18: ['Луна', 'Тайна'],
+        19: ['Солнце', 'Радость'], 20: ['Суд', 'Возрождение'], 21: ['Мир', 'Целостность'],
+        22: ['Шут', 'Свобода']
+      }
+    };
+
+    const tarot = {
+      arcanas: ['Шут','Маг','Жрица','Императрица','Император','Иерофант','Влюбленные','Колесница','Сила','Отшельник','Колесо Фортуны','Справедливость','Повешенный','Смерть','Умеренность','Дьявол','Башня','Звезда','Луна','Солнце','Суд','Мир'],
+      calculate(date) {
+        const [year, month, day] = date.split('-').map(Number);
+        const bArc = (day + month + String(year).split('').reduce((a,b)=>a+Number(b),0)) % 22 || 22;
+        const pYear = (day + month + new Date().getFullYear()) % 22 || 22;
+        return { birth: bArc, birthName: this.arcanas[bArc-1], personalYear: pYear, yearName: this.arcanas[pYear-1] };
+      },
+      archetypes: {
+        1: ['Новатор', 'Начало'], 2: ['Мудрец', 'Знание'], 3: ['Творец', 'Изобилие'],
+        4: ['Лидер', 'Структура'], 5: ['Учитель', 'Традиция'], 6: ['Выбор', 'Отношения'],
+        7: ['Воин', 'Победа'], 8: ['Сила', 'Контроль'], 9: ['Мудрец', 'Одиночество'],
+        10: ['Судьба', 'Перемены'], 11: ['Справедливость', 'Баланс'], 12: ['Жертва', 'Новый взгляд'],
+        13: ['Трансформация', 'Конец'], 14: ['Гармония', 'Исцеление'], 15: ['Искушение', 'Страсть'],
+        16: ['Кризис', 'Прорыв'], 17: ['Надежда', 'Вдохновение'], 18: ['Иллюзия', 'Подсознание'],
+        19: ['Радость', 'Успех'], 20: ['Возрождение', 'Призвание'], 21: ['Целостность', 'Завершение'],
+        22: ['Свобода', 'Потенциал']
+      }
+    };
+
+    const runes = {
+      names: ['Феху','Уруз','Турисаз','Ансуз','Райдо','Кеназ','Гебо','Вуньо','Хагалаз','Наутиз','Иса','Йера','Эйваз','Перт','Альгиз','Соулу','Тейваз','Беркана','Эваз','Манназ','Лагуз','Ингуз','Отал','Дагаз'],
+      calculate(date) {
+        const [y, m, d] = date.split('-').map(Number);
+        return { birth: this.names[(d+m+y)%24] || 'Дагаз', year: this.names[y%24] || 'Дагаз', index: (d+m+y)%24 + 1 };
+      },
+      archetypes: {
+        'Ансуз': ['Знание', 'Коммуникация'], 'Соулу': ['Успех', 'Энергия'], 
+        'Тейваз': ['Воля', 'Действие'], 'Лагуз': ['Интуиция', 'Поток'],
+        'Иса': ['Пауза', 'Концентрация'], 'Йера': ['Цикл', 'Награда']
+      }
+    };
+
+    const enneagram = {
+      types: {
+        1: { name: 'Перфекционист', wing: [9, 2], archetypes: ['Идеалист', 'Критик'] },
+        2: { name: 'Помощник', wing: [1, 3], archetypes: ['Заботливый', 'Дающий'] },
+        3: { name: 'Достиженец', wing: [2, 4], archetypes: ['Лидер', 'Успешный'] },
+        4: { name: 'Индивидуалист', wing: [3, 5], archetypes: ['Творец', 'Романтик'] },
+        5: { name: 'Наблюдатель', wing: [4, 6], archetypes: ['Мыслитель', 'Эксперт'] },
+        6: { name: 'Лоялист', wing: [5, 7], archetypes: ['Защитник', 'Скептик'] },
+        7: { name: 'Энтузиаст', wing: [6, 8], archetypes: ['Оптимист', 'Искатель'] },
+        8: { name: 'Лидер', wing: [7, 9], archetypes: ['Сила', 'Защитник'] },
+        9: { name: 'Миротворец', wing: [8, 1], archetypes: ['Гармония', 'Спокойствие'] }
+      },
+      calculate(date) {
+        const [y, m, d] = date.split('-').map(Number);
+        const type = ((d + m + String(y).split('').reduce((a,b)=>a+Number(b),0)) % 9) + 1;
+        const wingChoice = d % 2 === 0 ? 0 : 1;
+        const wing = this.types[type].wing[wingChoice];
+        return { type, name: this.types[type].name, wing, archetypes: this.types[type].archetypes };
+      }
+    };
+
+    const chineseZodiac = {
+      animals: ['Крыса','Бык','Тигр','Кролик','Дракон','Змея','Лошадь','Коза','Обезьяна','Петух','Собака','Свинья'],
+      elements: ['Дерево','Огонь','Земля','Металл','Вода'],
+      calculate(date) {
+        const year = new Date(date).getFullYear();
+        const animal = this.animals[(year - 4) % 12];
+        const element = this.elements[(year - 4) % 5];
+        const archetypes = this.getArchetypes(animal);
+        return { animal, element, year, archetypes };
+      },
+      getArchetypes(animal) {
+        const map = {
+          'Крыса': ['Хитрость', 'Адаптивность'], 'Бык': ['Сила', 'Терпение'],
+          'Тигр': ['Смелость', 'Страсть'], 'Кролик': ['Дипломатия', 'Осторожность'],
+          'Дракон': ['Мощь', 'Удача'], 'Змея': ['Мудрость', 'Интуиция'],
+          'Лошадь': ['Свобода', 'Энергия'], 'Коза': ['Творчество', 'Мягкость'],
+          'Обезьяна': ['Остроумие', 'Игривость'], 'Петух': ['Точность', 'Гордость'],
+          'Собака': ['Верность', 'Честность'], 'Свинья': ['Щедрость', 'Наслаждение']
+        };
+        return map[animal] || ['Уникальность', 'Потенциал'];
+      }
+    };
+
+    const biorhythms = {
+      calculate(date) {
+        const birth = new Date(date), today = new Date();
+        const days = Math.floor((today - birth) / 86400000);
+        return { phys: Math.round(Math.sin((2*Math.PI*days)/23)*100), emot: Math.round(Math.sin((2*Math.PI*days)/28)*100), intell: Math.round(Math.sin((2*Math.PI*days)/33)*100), intuit: Math.round(Math.sin((2*Math.PI*days)/38)*100) };
+      }
+    };
+
+    const astrology = {
       getSunSign(d, m) {
         const signs = ['Козерог','Водолей','Рыбы','Овен','Телец','Близнецы','Рак','Лев','Дева','Весы','Скорпион','Стрелец'];
         const days = [20,19,21,20,21,21,23,23,23,23,22,22];
         return m === 1 && d < 20 ? signs[0] : signs[d >= days[m-1] ? m : m-1];
       },
-      
-      // Улучшенный расчет Асцендента на основе Широты и Долготы
-      getAscendant(h, m, d, lat, lon) {
-        // 1. Звездное время (приближенно)
-        // Формула: LST = GMST + Longitude
-        // Упрощенно: каждый месяц сдвиг на 2 часа + 4 минуты на каждый градус долготы
-        
-        const baseHours = (m * 2) + (d * 0.066); // База от даты
-        const timeOffset = h + (m / 60); // Время рождения
-        const geoOffset = lon / 15; // Долгота в часах
-        
-        let lst = baseHours + timeOffset + geoOffset;
-        while(lst > 24) lst -= 24;
-        
-        // 2. Перевод LST в знак (каждые 2 часа = 1 знак)
-        const signIndex = Math.floor(lst / 2);
-        const signs = ['Овен','Телец','Близнецы','Рак','Лев','Дева','Весы','Скорпион','Стрелец','Козерог','Водолей','Рыбы'];
-        
-        return signs[signIndex % 12];
-      },
-
       getMoonPhase(d, m, y) {
         let c = 0, e = 0, jd = 0, b = 0;
         if (m < 3) { y--; m += 12; }
-        ++m;
-        c = 365.25 * y; e = 30.6 * m;
+        ++m; c = 365.25 * y; e = 30.6 * m;
         jd = c + e + d - 694039.09; jd /= 29.5305882;
         b = parseInt(jd); jd -= b;
         b = Math.round(jd * 8); if (b >= 8) b = 0;
         return ['🌑 Новолуние','🌒 Растущий серп','🌓 Первая четверть','🌔 Растущая луна','🌕 Полнолуние','🌖 Убывающая луна','🌗 Последняя четверть','🌘 Убывающий серп'][b];
+      },
+      getAscendant(h, m, d, lat, lon) {
+        const signs = ['Овен','Телец','Близнецы','Рак','Лев','Дева','Весы','Скорпион','Стрелец','Козерог','Водолей','Рыбы'];
+        const base = (m - 1) * 2; 
+        const hoursOffset = Math.floor((h || 12) / 2);
+        const geoOffset = Math.floor(lon / 15);
+        return signs[(base + hoursOffset + geoOffset) % 12];
+      },
+      archetypes: {
+        'Овен': ['Инициатор', 'Воин'], 'Телец': ['Хранитель', 'Стабильность'],
+        'Близнецы': ['Коммуникатор', 'Искатель'], 'Рак': ['Защитник', 'Эмпат'],
+        'Лев': ['Лидер', 'Творец'], 'Дева': ['Аналитик', 'Служение'],
+        'Весы': ['Дипломат', 'Гармония'], 'Скорпион': ['Трансформер', 'Глубина'],
+        'Стрелец': ['Философ', 'Путешественник'], 'Козерог': ['Стратег', 'Дисциплина'],
+        'Водолей': ['Визионер', 'Новатор'], 'Рыбы': ['Мистик', 'Интуит']
       }
     };
 
-    // === ЛОГИКА HUMAN DESIGN ===
-    const HumanDesign = {
+    const humanDesign = {
       calculate(time, dateStr) {
         const [h] = time.split(':').map(Number);
         const [y, m, d] = dateStr.split('-').map(Number);
         const types = ['Генератор', 'Манифестирующий Генератор', 'Проектор', 'Манифестор', 'Отражатель'];
-        const typeIndex = (d + m + h) % 5;
+        const typeIndex = (d + m + (h || 12)) % 5;
         const sunLine = (d % 6) + 1;
         const earthLine = (m % 6) + 1;
         const strategies = {
           0: 'Ждать отклика перед действием', 1: 'Информировать перед действием',
           2: 'Ждать приглашения', 3: 'Инициировать и ждать ответа', 4: 'Наблюдать лунный цикл'
         };
+        const authorities = (h % 2 === 0) ? 'Эмоциональный авторитет' : 'Сакральный авторитет';
         return {
           type: types[typeIndex], strategy: strategies[typeIndex],
-          profile: `${sunLine}/${earthLine}`,
-          authority: (h % 2 === 0) ? 'Эмоциональный авторитет' : 'Сакральный авторитет'
+          profile: `${sunLine}/${earthLine}`, authority: authorities,
+          archetypes: [types[typeIndex].split(' ')[0], 'Осознанность', 'Поток']
         };
       }
     };
 
-    // === ГЛАВНЫЙ РАСЧЕТ ===
+    // === РЕЗОНАНСНЫЙ ДВИЖОК ===
+    function findResonances(allResults) {
+      const allArchetypes = [];
+      if (allResults.num.archetypes) allArchetypes.push(...allResults.num.archetypes[allResults.num.lifePath] || []);
+      if (allResults.mat) Object.values(allResults.mat).forEach(val => { if(destinyMatrix.archetypes[val]) allArchetypes.push(...destinyMatrix.archetypes[val]); });
+      if (allResults.tar.archetypes) allArchetypes.push(...(allResults.tar.archetypes[allResults.tar.birth] || []));
+      if (allResults.run.archetypes) allArchetypes.push(...(allResults.run.archetypes[allResults.run.birth] || []));
+      if (allResults.enn.archetypes) allArchetypes.push(...allResults.enn.archetypes);
+      if (allResults.chin.archetypes) allArchetypes.push(...allResults.chin.archetypes);
+      if (allResults.astro.archetypes) allArchetypes.push(...allResults.astro.archetypes);
+      if (allResults.hd.archetypes) allArchetypes.push(...allResults.hd.archetypes);
+
+      const freq = {};
+      allArchetypes.forEach(a => freq[a] = (freq[a] || 0) + 1);
+      return Object.entries(freq).filter(([_, count]) => count >= 2).sort((a,b) => b[1] - a[1]).map(([name]) => name);
+    }
+
+    function generateResonanceText(name, resonances, allResults) {
+      const templates = [
+        `${name}, системы сходятся. Ваш путь пронизан энергией <strong>${resonances[0] || 'глубинной трансформации'}</strong>.`,
+        `То, что казалось случайным, обретает форму. ${resonances[1] ? `Ваша сила — в ${resonances[1].toLowerCase()}.` : ''}`,
+        `Астрологически вы ${allResults.astro.sun}, а в Human Design — ${allResults.hd.type}.`,
+        `Сейчас время ${allResults.bio.intuit > 50 ? 'внутреннего наблюдения и доверия интуиции' : 'активного действия и проявления воли'}.`,
+        `⚠️ Следующие 14 дней — окно высокой синхронизации. Не форсируйте события.`
+      ];
+      return templates.filter(t => t.trim()).join('<br><br>');
+    }
+
+    // === ГЛАВНАЯ ФУНКЦИЯ ===
     function calculateAll() {
-      const name = document.getElementById('name').value || 'Искатель';
-      const dateStr = document.getElementById('date').value;
-      const timeStr = document.getElementById('time').value;
-      // Если координаты не найдены, берем дефолтные, но лучше предупредить
-      if(!geoData.lat) { alert("Сначала найдите город!"); return; }
+      const name = document.getElementById('fullName').value || 'Искатель';
+      const date = document.getElementById('birthDate').value;
+      const time = document.getElementById('birthTime').value || '12:00:00';
+      const place = document.getElementById('birthPlace').value;
+      if(!date) { alert('Введите дату рождения'); return; }
 
-      if(!dateStr) return alert('Введите дату рождения');
+      const [y, m, d] = date.split('-').map(Number);
+      const [h, min] = time.split(':').map(Number);
 
-      const [y, m, d] = dateStr.split('-').map(Number);
-      const [h, min] = timeStr.split(':').map(Number);
-
-      // 1. Астрология (теперь с реальными координатами!)
-      const sun = Astro.getSunSign(d, m);
-      // Передаем lat/lon в расчет
-      const asc = Astro.getAscendant(h || 12, m, d, geoData.lat, geoData.lon);
-      const moon = Astro.getMoonPhase(d, m, y);
+      const num = numerology.calculate(date, name);
+      const mat = destinyMatrix.calculate(date);
+      const tar = tarot.calculate(date);
+      const run = runes.calculate(date);
+      const enn = enneagram.calculate(date);
+      const chin = chineseZodiac.calculate(date);
+      const bio = biorhythms.calculate(date);
       
-      document.getElementById('astroRes').innerHTML = `
-        <div class="result-item"><div class="result-value">☀️ ${sun}</div><div class="result-label">Солнце (Эго)</div></div>
-        <div class="result-item"><div class="result-value">🌙 ${moon}</div><div class="result-label">Луна (Душа)</div></div>
-        <div class="result-item"><div class="result-value">🌅 ${asc}</div><div class="result-label">Асцендент (Маска)</div></div>
-        <div class="result-item"><div class="result-value">📍 ${geoData.name}</div><div class="result-label">${geoData.lat.toFixed(1)}° N, ${geoData.lon.toFixed(1)}° E</div></div>
-      `;
-
-      // 2. Human Design
-      const hd = HumanDesign.calculate(timeStr || '12:00', dateStr);
-      document.getElementById('hdRes').innerHTML = `
-        <div class="result-item"><div class="result-value">🧬 ${hd.type}</div><div class="result-label">Тип Ауры</div></div>
-        <div class="result-item"><div class="result-value">🔑 ${hd.profile}</div><div class="result-label">Профиль (Роль)</div></div>
-        <div class="result-item"><div class="result-value">🛡️ ${hd.authority}</div><div class="result-label">Авторитет</div></div>
-        <div class="result-item"><div class="result-value">♟️ ${hd.strategy.substring(0,15)}...</div><div class="result-label">Стратегия</div></div>
-      `;
-
-      // 3. Нумерология
-      const pathNum = (d + m + String(y).split('').reduce((a,b)=>a+parseInt(b),0)) % 9 || 9;
-      document.getElementById('numRes').innerHTML = `
-        <div class="result-item"><div class="result-value">${pathNum}</div><div class="result-label">Число Пути</div></div>
-        <div class="result-item"><div class="result-value">${(d+m)%9 || 9}</div><div class="result-label">Число Души</div></div>
-      `;
-
-      // 4. РЕЗОНАНС
-      const resonances = [];
-      if (sun === asc) resonances.push('Двойная сила Солнца');
-      if (hd.type.includes('Генератор') && pathNum % 2 !== 0) resonances.push('Энергия созидания');
+      const astro = {
+        sun: astrology.getSunSign(d, m),
+        moon: astrology.getMoonPhase(d, m, y),
+        asc: astrology.getAscendant(h || 12, m, d, geoData.lat, geoData.lon),
+        archetypes: astrology.archetypes[astrology.getSunSign(d, m)] || ['Звезда', 'Путь']
+      };
       
-      let msg = `${name}, ваша карта уникальна.<br>`;
-      msg += `Ваше Солнце в знаке <strong>${sun}</strong>, а Асцендент (рассчитанный по координатам ${geoData.lat}, ${geoData.lon}) — <strong>${asc}</strong>.<br>`;
-      msg += `В системе Human Design вы — <strong>${hd.type}</strong>.<br>`;
-      msg += `Ваша стратегия: <em>"${hd.strategy}"</em>.`;
-      
-      if(resonances.length > 0) {
-        msg += `<br><br>✨ Найдены резонансы: ${resonances.join(', ')}.`;
-      }
+      const hd = humanDesign.calculate(time, date);
 
-      document.getElementById('resText').innerHTML = msg;
-      document.getElementById('confLevel').textContent = `Синхронизация систем: ${85 + Math.floor(Math.random()*15)}%`;
-      
+      const allResults = { num, mat, tar, run, enn, chin, bio, astro, hd };
+
+      drawNumerology(num); drawMatrix(mat); drawTarot(tar); drawRunes(run);
+      drawEnneagram(enn); drawChinese(chin); drawBiorhythms(bio); drawAstro(astro); drawHD(hd);
+
+      const resonances = findResonances(allResults);
+      const text = generateResonanceText(name, resonances, allResults);
+      const confidence = Math.min(98, 60 + resonances.length * 12);
+
+      document.getElementById('resonanceText').innerHTML = text;
+      document.getElementById('resonanceHighlights').innerHTML = resonances.slice(0, 6).map(r => `<span class="highlight-tag">✨ ${r}</span>`).join('');
+      document.getElementById('confidenceLevel').textContent = `Резонанс систем: ${confidence}%`;
+
       document.getElementById('results').classList.add('show');
-      document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+      setTimeout(() => document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'}), 300);
+    }
+
+    // === ОТРИСОВКА ===
+    function drawNumerology(data) {
+      const arch = numerology.archetypes[data.lifePath] || ['Путь', 'Судьба'];
+      document.getElementById('numerologyResults').innerHTML = `
+        <div class="result-item"><div class="result-value">${data.lifePath}</div><div class="result-label">Путь жизни<br><small>${arch[0]}</small></div></div>
+        <div class="result-item"><div class="result-value">${data.destiny}</div><div class="result-label">Судьба<br><small>Число имени</small></div></div>
+        <div class="result-item"><div class="result-value">${data.soul}</div><div class="result-label">Душа<br><small>Внутреннее</small></div></div>
+        <div class="result-item"><div class="result-value">${data.personality}</div><div class="result-label">Личность<br><small>Внешнее</small></div></div>`;
+    }
+    function drawMatrix(data) {
+      document.getElementById('matrixResults').innerHTML = `
+        <div class="result-item"><div class="result-value">${data.day}</div><div class="result-label">День<br>Социум</div></div>
+        <div class="result-item"><div class="result-value">${data.month}</div><div class="result-label">Месяц<br>Талант</div></div>
+        <div class="result-item"><div class="result-value">${data.year}</div><div class="result-label">Год<br>Карма</div></div>
+        <div class="result-item"><div class="result-value" style="color:var(--gold)">${data.center}</div><div class="result-label">Центр<br>Ядро</div></div>
+        <div class="result-item"><div class="result-value">${data.karma}</div><div class="result-label">Карма</div></div>
+        <div class="result-item"><div class="result-value">${data.talent}</div><div class="result-label">Талант</div></div>
+        <div class="result-item"><div class="result-value">${data.money}</div><div class="result-label">Деньги</div></div>
+        <div class="result-item"><div class="result-value">${data.love}</div><div class="result-label">Отношения</div></div>`;
+    }
+    function drawTarot(data) {
+      document.getElementById('tarotResults').innerHTML = `
+        <div class="result-item"><div class="result-value">${data.birth}</div><div class="result-label">Аркан рождения<br><strong>${data.birthName}</strong></div></div>
+        <div class="result-item"><div class="result-value">${data.personalYear}</div><div class="result-label">Личный год<br><strong>${data.yearName}</strong></div></div>`;
+    }
+    function drawRunes(data) {
+      document.getElementById('runeResults').innerHTML = `
+        <div class="result-item"><div class="result-value">ᚚ</div><div class="result-label">Руна рождения<br><strong>${data.birth}</strong></div></div>
+        <div class="result-item"><div class="result-value">ᛟ</div><div class="result-label">Руна года<br><strong>${data.year}</strong></div></div>`;
+    }
+    function drawEnneagram(data) {
+      document.getElementById('enneagramResults').innerHTML = `
+        <div class="result-item"><div class="result-value">${data.type}</div><div class="result-label">Тип<br><strong>${data.name}</strong></div></div>
+        <div class="result-item"><div class="result-value">${data.wing}</div><div class="result-label">Крыло<br><small>${data.archetypes.join(', ')}</small></div></div>`;
+    }
+    function drawChinese(data) {
+      document.getElementById('chineseResults').innerHTML = `
+        <div class="result-item"><div class="result-value">🐉</div><div class="result-label">Знак года<br><strong>${data.animal}</strong></div></div>
+        <div class="result-item"><div class="result-value">🔥</div><div class="result-label">Стихия<br><strong>${data.element}</strong></div></div>`;
+    }
+    function drawBiorhythms(data) {
+      const getColor = v => v > 0 ? 'var(--success)' : '#e74c3c';
+      document.getElementById('bioResults').innerHTML = `
+        <div class="result-item"><div class="result-value" style="color:${getColor(data.phys)}">${data.phys}%</div><div class="result-label">Физика</div></div>
+        <div class="result-item"><div class="result-value" style="color:${getColor(data.emot)}">${data.emot}%</div><div class="result-label">Эмоции</div></div>
+        <div class="result-item"><div class="result-value" style="color:${getColor(data.intell)}">${data.intell}%</div><div class="result-label">Интеллект</div></div>
+        <div class="result-item"><div class="result-value" style="color:${getColor(data.intuit)}">${data.intuit}%</div><div class="result-label">Интуиция</div></div>`;
+    }
+    function drawAstro(data) {
+      document.getElementById('astroResults').innerHTML = `
+        <div class="result-item"><div class="result-value">☀️</div><div class="result-label">Солнце<br><strong>${data.sun}</strong></div></div>
+        <div class="result-item"><div class="result-value">🌙</div><div class="result-label">Луна<br><strong>${data.moon}</strong></div></div>
+        <div class="result-item"><div class="result-value">🌅</div><div class="result-label">Асцендент<br><strong>${data.asc}</strong></div></div>`;
+    }
+    function drawHD(data) {
+      document.getElementById('hdResults').innerHTML = `
+        <div class="result-item"><div class="result-value">🧬</div><div class="result-label">Тип<br><strong>${data.type}</strong></div></div>
+        <div class="result-item"><div class="result-value">🔑</div><div class="result-label">Профиль<br><strong>${data.profile}</strong></div></div>
+        <div class="result-item"><div class="result-value">🛡️</div><div class="result-label">Авторитет<br><strong>${data.authority}</strong></div></div>
+        <div class="result-item"><div class="result-value">♟️</div><div class="result-label">Стратегия<br><small>${data.strategy}</small></div></div>`;
     }
   </script>
 </body>
