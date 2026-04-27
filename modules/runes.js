@@ -1,55 +1,65 @@
-// modules/matrix.js
-import { reduceNumber } from '../core/utils.js';
-
+// modules/runes.js
 export default {
-  id: 'matrix',
-  name: '🌀 Матрица Судьбы',
-  
+  id: 'runes',
+  name: 'ᚚ Руны Старшего Футарка',
+
   calculate(input) {
     if (!input.date) return null;
-    const { year, month, day } = parseDateSimple(input.date);
+    const { year, month, day } = parseDate(input.date);
     
-    const sum = n => n > 22 ? reduceNumber(n) : n;
-    const yearSum = reduceNumber(String(year).split('').reduce((a,b)=>a+Number(b), 0));
-    
+    // Расчет руны дня рождения
+    const sum = day + month + year;
+    const index = sum % 24;
+    const rune = RUNES[index];
+
     return {
-      day: sum(day),
-      month: sum(month), 
-      year: sum(yearSum),
-      center: sum(day + month + yearSum),
-      karma: sum(day + month),
-      talent: sum(month + yearSum),
-      money: sum(day + yearSum),
-      love: sum(sum(day) + sum(month)),
-      archetypes: getMatrixArchetypes(sum(day), sum(month), sum(yearSum))
+      name: rune.name,
+      symbol: rune.symbol,
+      meaning: rune.meaning,
+      archetypes: [rune.archetype]
     };
   },
-  
+
   render(data) {
     return `
-      <div class="result-item"><div class="result-value">${data.center}</div><div class="result-label" style="color:var(--gold)">Центр</div></div>
-      <div class="result-item"><div class="result-value">${data.day}</div><div class="result-label">День</div></div>
-      <div class="result-item"><div class="result-value">${data.month}</div><div class="result-label">Месяц</div></div>
-      <div class="result-item"><div class="result-value">${data.year}</div><div class="result-label">Год</div></div>
-      <div class="result-item"><div class="result-value">${data.karma}</div><div class="result-label">Карма</div></div>
-      <div class="result-item"><div class="result-value">${data.talent}</div><div class="result-label">Талант</div></div>
+      <div class="result-item" style="font-size: 2rem;">${data.symbol}</div>
+      <div class="result-item">
+        <div class="result-value">${data.name}</div>
+        <div class="result-label">${data.meaning}</div>
+      </div>
     `;
   }
 };
 
-function parseDateSimple(str) {
+// БАЗА ЗНАНИЙ РУН
+const RUNES = [
+  { symbol: "ᚠ", name: "Феху", meaning: "Богатство, начало", archetype: "creator" },
+  { symbol: "ᚢ", name: "Уруз", meaning: "Сила, здоровье", archetype: "warrior" },
+  { symbol: "ᚦ", name: "Турисаз", meaning: "Врата, защита", archetype: "warrior" },
+  { symbol: "ᚨ", name: "Ансуз", meaning: "Знание, слово", archetype: "wise_one" },
+  { symbol: "ᚱ", name: "Райдо", meaning: "Путь, движение", archetype: "seeker" },
+  { symbol: "ᚲ", name: "Кеназ", meaning: "Огонь, творчество", archetype: "creator" },
+  { symbol: "ᚷ", name: "Гебо", meaning: "Дар, партнерство", archetype: "diplomat" },
+  { symbol: "ᚹ", name: "Вуньо", meaning: "Радость, гармония", archetype: "creator" },
+  { symbol: "ᚺ", name: "Хагалаз", meaning: "Разрушение, град", archetype: "warrior" },
+  { symbol: "ᚾ", name: "Наутиз", meaning: "Нужда, терпение", archetype: "wise_one" },
+  { symbol: "ᛁ", name: "Иса", meaning: "Лед, застой", archetype: "wise_one" },
+  { symbol: "ᛃ", name: "Йера", meaning: "Урожай, цикл", archetype: "creator" },
+  { symbol: "ᛇ", name: "Эйваз", meaning: "Тис, защита", archetype: "mystic" },
+  { symbol: "ᛈ", name: "Перт", meaning: "Тайна, судьба", archetype: "mystic" },
+  { symbol: "ᛉ", name: "Альгиз", meaning: "Лось, оберег", archetype: "mystic" },
+  { symbol: "ᛊ", name: "Соулу", meaning: "Солнце, успех", archetype: "leader" },
+  { symbol: "ᛏ", name: "Тейваз", meaning: "Воин, победа", archetype: "warrior" },
+  { symbol: "ᛒ", name: "Беркана", meaning: "Береза, рост", archetype: "mentor" },
+  { symbol: "ᛖ", name: "Эваз", meaning: "Конь, доверие", archetype: "seeker" },
+  { symbol: "ᛗ", name: "Манназ", meaning: "Человек, я", archetype: "wise_one" },
+  { symbol: "ᛚ", name: "Лагуз", meaning: "Вода, поток", archetype: "mystic" },
+  { symbol: "ᛝ", name: "Ингуз", meaning: "Плод, завершение", archetype: "creator" },
+  { symbol: "ᛟ", name: "Отал", meaning: "Наследие, дом", archetype: "diplomat" },
+  { symbol: "ᛞ", name: "Дагаз", meaning: "День, прорыв", archetype: "leader" }
+];
+
+function parseDate(str) {
   const [y,m,d] = str.split('-').map(Number);
   return {year:y, month:m, day:d};
-}
-
-function getMatrixArchetypes(d, m, y) {
-  // Упрощенная связь арканов с архетипами
-  const map = {
-    1:'leader', 2:'diplomat', 3:'creator', 4:'builder', 5:'seeker',
-    6:'mentor', 7:'wise_one', 8:'manager', 9:'humanist', 10:'leader',
-    11:'wise_one', 12:'mystic', 13:'warrior', 14:'diplomat', 15:'creator',
-    16:'warrior', 17:'mystic', 18:'mystic', 19:'leader', 20:'wise_one',
-    21:'humanist', 22:'seeker'
-  };
-  return [map[d], map[m], map[y]].filter(Boolean);
 }
