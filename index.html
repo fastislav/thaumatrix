@@ -11,24 +11,15 @@
 
   <header>
     <div class="logo">🔮 Thaumatrix</div>
-    <p style="color: #a0a0a0;">Архитектура Системы v2.0</p>
+    <p style="color: #a0a0a0;">Библиотека знаний • Резонанс систем</p>
   </header>
 
   <div class="container">
     <section class="input-section">
       <div class="form-grid">
-        <div>
-          <label>✨ Имя</label>
-          <input type="text" id="name" placeholder="Иван" />
-        </div>
-        <div>
-          <label>📅 Дата</label>
-          <input type="date" id="date" />
-        </div>
-        <div>
-          <label>⏰ Время</label>
-          <input type="time" id="time" step="1" />
-        </div>
+        <div><label>✨ Имя</label><input type="text" id="name" placeholder="Иван" /></div>
+        <div><label>📅 Дата</label><input type="date" id="date" /></div>
+        <div><label>⏰ Время</label><input type="time" id="time" step="1" /></div>
         <div class="geo-wrapper">
           <label>📍 Город</label>
           <input type="text" id="place" placeholder="Москва" />
@@ -41,41 +32,41 @@
 
     <section class="results-section" id="results">
       
-      <!-- Контейнеры для модулей (будут заполняться автоматически) -->
-      <div class="module-card" id="card-numerology" style="display:none;">
+      <!-- Карточки модулей (будут заполняться автоматически) -->
+      <div class="module-card" id="card-numerology" style="display:none">
         <div class="module-title">🔢 Нумерология</div>
         <div class="result-grid" id="res-numerology"></div>
       </div>
+      
+      <div class="module-card" id="card-matrix" style="display:none">
+        <div class="module-title">🌀 Матрица Судьбы</div>
+        <div class="result-grid" id="res-matrix"></div>
+      </div>
+      
+      <!-- Добавьте карточки для остальных модулей по аналогии -->
 
-      <!-- Секция ИИ -->
-      <div class="module-card" id="ai-section" style="display:none; border-color: var(--gold);">
-        <div class="module-title">🤖 Протокол ИИ-Анализ</div>
-        <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">Скопируйте этот текст в ChatGPT/Claude для получения глубокого разбора:</p>
-        <div style="background:#000; padding:10px; border-radius:8px; font-family:monospace; font-size:0.8rem; max-height:200px; overflow:auto; color:#0f0;" id="ai-prompt-box"></div>
-        <button onclick="copyAI()" style="margin-top:10px; padding:5px 10px; cursor:pointer;">📋 Копировать Промпт</button>
+      <!-- Резонанс -->
+      <div class="resonance-box">
+        <div class="resonance-title">🌌 РЕЗОНАНС СИСТЕМ</div>
+        <div id="resonance-text" style="font-size:1.1rem; margin:1rem 0"></div>
+        <div id="resonance-tags" style="display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap"></div>
       </div>
 
-      <div class="resonance-box">
-        <h2 style="color: var(--gold);">🌌 Резонанс Систем</h2>
-        <div id="resonance-count" style="font-size:1.2rem; margin: 10px 0;"></div>
+      <!-- Локальный Оракул -->
+      <div class="module-card" id="oracle-section" style="display:none; border-color: var(--gold); background: rgba(255,209,102,0.05)">
+        <div class="module-title" style="color:var(--gold)">👁️ Голос Оракула</div>
+        <div id="oracle-text" style="line-height:1.8"></div>
       </div>
 
     </section>
 
-    <footer>Thaumatrix Modular Core © 2026</footer>
+    <footer>Thaumatrix • Библиотека эзотерических знаний © 2026</footer>
   </div>
 
   <!-- Подключаем модульное ядро -->
   <script type="module">
     import { init } from './core/engine.js';
     init();
-  </script>
-  
-  <script>
-    function copyAI() {
-      const text = document.getElementById('ai-prompt-box').innerText;
-      navigator.clipboard.writeText(text).then(() => alert('Промпт скопирован! Вставьте в ИИ.'));
-    }
   </script>
 </body>
 </html>
