@@ -1,217 +1,203 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>THAUMATRIX // ORACLE SYSTEM</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+// core/engine.js
+
+// === ИМПОРТ МОДУЛЕЙ ===
+import Numerology from '../modules/numerology.js';
+import Matrix from '../modules/matrix.js';
+import Tarot from '../modules/tarot.js';
+import Astrology from '../modules/astrology.js';
+import Runes from '../modules/runes.js';
+
+const MODULES = [Numerology, Matrix, Tarot, Astrology, Runes];
+
+// === ИНИЦИАЛИЗАЦИЯ ===
+export function init() {
+  console.log('🔮 Thaumatrix Engine v2.0 Loaded');
+  createCosmicBackground();
+  setupEventListeners();
+}
+
+function setupEventListeners() {
+  document.getElementById('calcBtn').addEventListener('click', runAnalysis);
+  document.getElementById('geoBtn').addEventListener('click', findCoordinates);
+}
+
+// === КОСМИЧЕСКИЙ ФОН (Звёзды + Метеоры + Планеты) ===
+function createCosmicBackground() {
+  const container = document.getElementById('cosmicBg');
+  if (!container) return;
   
-  <style>
-    :root {
-      --bg: #000000;
-      --surface: #0a0a0a;
-      --border: rgba(255, 255, 255, 0.12);
-      --text-main: #ffffff;
-      --text-muted: #888888;
-      --accent: #ffffff;
-      --glow: rgba(255, 255, 255, 0.15);
-      --radius: 8px;
-    }
+  // Звёзды (100 шт)
+  for (let i = 0; i < 100; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+    star.style.animationDelay = Math.random() * 5 + 's';
+    container.appendChild(star);
+  }
+  
+  // Метеоры (5 шт)
+  for (let i = 0; i < 5; i++) {
+    const meteor = document.createElement('div');
+    meteor.className = 'meteor';
+    meteor.style.left = Math.random() * 100 + '%';
+    meteor.style.top = Math.random() * 50 + '%';
+    meteor.style.animationDuration = (Math.random() * 3 + 2) + 's';
+    meteor.style.animationDelay = (Math.random() * 10 + i * 5) + 's';
+    container.appendChild(meteor);
+  }
+  
+  // Планеты (уже есть в CSS, но можно добавить динамически)
+  const planets = [
+    { class: 'planet planet-1' },
+    { class: 'planet planet-2' },
+    { class: 'planet planet-3' },
+    { class: 'planet planet-4' }
+  ];
+  
+  planets.forEach(p => {
+    const planet = document.createElement('div');
+    planet.className = p.class;
+    container.appendChild(planet);
+  });
+}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+// === ГЕОЛОКАЦИЯ (ПОИСК ГОРОДА) ===
+window.geoData = { lat: 55.7558, lon: 37.6173, name: 'Москва' };
+
+async function findCoordinates() {
+  const city = document.getElementById('birthPlace').value.trim();
+  const status = document.getElementById('geoStatus');
+  
+  if (!city) {
+    status.textContent = '❌ Введите название города';
+    status.className = 'geo-status error';
+    return;
+  }
+  
+  status.textContent = '⏳ Поиск координат...';
+  status.className = 'geo-status';
+  
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}&limit=1`);
+    const data = await response.json();
     
-    body {
-      background: var(--bg);
-      color: var(--text-main);
-      font-family: 'Inter', system-ui, sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-      line-height: 1.5;
-      position: relative;
+    if (data && data.length > 0) {
+      const place = data[0];
+      window.geoData = {
+        lat: parseFloat(place.lat),
+        lon: parseFloat(place.lon),
+        name: place.display_name.split(',')[0]
+      };
+      
+      const parts = place.display_name.split(',');
+      const region = parts[1] ? parts[1].trim() : '';
+      const country = parts[parts.length - 1] ? parts[parts.length - 1].trim() : '';
+      
+      status.innerHTML = `✅ <strong>${window.geoData.name}</strong><br><small>${region}, ${country}<br>📍 ${window.geoData.lat.toFixed(2)}°, ${window.geoData.lon.toFixed(2)}°</small>`;
+      status.className = 'geo-status success';
+    } else {
+      status.textContent = '❌ Город не найден';
+      status.className = 'geo-status error';
     }
+  } catch (error) {
+    status.textContent = '❌ Ошибка сети';
+    status.className = 'geo-status error';
+  }
+}
 
-    /* === КОСМИЧЕСКИЙ ФОН === */
-    #starfield {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none; z-index: 0; overflow: hidden;
-    }
-    .star {
-      position: absolute; background: #fff; border-radius: 50%;
-      opacity: 0; animation: twinkle linear infinite;
-    }
-    @keyframes twinkle {
-      0%, 100% { opacity: 0; transform: scale(0.5); }
-      50% { opacity: 0.8; transform: scale(1); }
-    }
-
-    /* === UI === */
-    .container {
-      max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem;
-      position: relative; z-index: 1;
-    }
-
-    header { text-align: center; margin-bottom: 3rem; padding-top: 1rem; }
-    .logo {
-      font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 700;
-      letter-spacing: 4px; text-transform: uppercase; color: var(--text-main);
-      margin-bottom: 0.5rem;
-    }
-    .subtitle { color: var(--text-muted); font-size: 0.85rem; letter-spacing: 1px; }
-
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      backdrop-filter: blur(8px);
-    }
-
-    .input-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem; margin-bottom: 1.5rem;
-    }
-    .field { display: flex; flex-direction: column; gap: 0.4rem; }
-    .field label {
-      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
-      color: var(--text-muted); font-weight: 600;
-    }
-    .field input {
-      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-      border-radius: 6px; padding: 0.8rem; color: var(--text-main);
-      font-family: 'JetBrains Mono', monospace; font-size: 0.95rem;
-      transition: all 0.2s;
-    }
-    .field input:focus {
-      outline: none; border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--glow);
-    }
-
-    .geo-wrapper { position: relative; }
-    .geo-btn {
-      position: absolute; right: 6px; top: 26px;
-      background: transparent; border: 1px solid var(--border);
-      color: var(--text-main); padding: 0.4rem 0.6rem; border-radius: 4px;
-      cursor: pointer; font-size: 0.75rem; transition: all 0.2s;
-    }
-    .geo-btn:hover { background: var(--accent); color: #000; }
-    .geo-status { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; min-height: 14px; }
-    .geo-status.ok { color: #4ade80; }
-
-    .calc-btn {
-      width: 100%; padding: 1rem; background: transparent;
-      border: 1px solid var(--accent); color: var(--accent);
-      font-family: 'JetBrains Mono', monospace; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
-      transition: all 0.2s; border-radius: 6px;
-    }
-    .calc-btn:hover { background: var(--accent); color: #000; }
-    .calc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    /* === RESULTS === */
-    .results-panel { display: none; animation: fadeIn 0.5s ease; }
-    .results-panel.show { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    .module-card {
-      background: rgba(255,255,255,0.02); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 1.2rem; margin-bottom: 1rem;
-    }
-    .module-title {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
-      text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);
-      margin-bottom: 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem;
-    }
-    .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.8rem; }
-    .result-item {
-      background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 6px;
-      text-align: center; border: 1px solid transparent; transition: border 0.2s;
-    }
-    .result-item:hover { border-color: var(--border); }
-    .result-value { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 700; color: var(--text-main); }
-    .result-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-top: 0.2rem; }
-
-    .resonance-box {
-      background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
-      border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 1.5rem; text-align: center; margin-top: 1.5rem;
-    }
-    .resonance-title {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
-      text-transform: uppercase; letter-spacing: 2px; color: var(--text-main);
-      margin-bottom: 1rem;
-    }
-    .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 1rem; }
-    .tag {
-      background: rgba(255,255,255,0.08); padding: 0.3rem 0.6rem; border-radius: 4px;
-      font-size: 0.75rem; color: var(--text-muted);
-    }
-    .oracle-text {
-      font-size: 0.95rem; line-height: 1.7; color: #d0d0d0; text-align: left;
-      background: rgba(0,0,0,0.4); padding: 1rem; border-radius: 6px;
-      border-left: 2px solid var(--accent);
-    }
-
-    footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-size: 0.7rem; letter-spacing: 1px; }
+// === ГЛАВНЫЙ РАСЧЁТ ===
+async function runAnalysis() {
+  const input = {
+    name: document.getElementById('fullName').value || 'Искатель',
+    date: document.getElementById('birthDate').value,
+    time: document.getElementById('birthTime').value || '12:00:00',
+    place: document.getElementById('birthPlace').value,
+    geo: window.geoData
+  };
+  
+  if (!input.date) {
+    alert('Введите дату рождения');
+    return;
+  }
+  
+  const btn = document.getElementById('calcBtn');
+  btn.textContent = '⏳ Анализ систем...';
+  btn.disabled = true;
+  
+  await new Promise(r => setTimeout(r, 300));
+  
+  try {
+    const results = {};
+    let allArchetypes = [];
     
-    @media (max-width: 600px) {
-      .logo { font-size: 1.4rem; }
-      .input-grid { grid-template-columns: 1fr; }
+    // Запуск модулей
+    for (const mod of MODULES) {
+      try {
+        const res = mod.calculate(input);
+        results[mod.id] = res;
+        
+        if (res?.archetypes) {
+          allArchetypes.push(...res.archetypes);
+        }
+        
+        const container = document.getElementById(`res-${mod.id}`);
+        const card = document.getElementById(`card-${mod.id}`);
+        
+        if (container && mod.render && res) {
+          container.innerHTML = mod.render(res);
+          card.style.display = 'block';
+        }
+      } catch (e) {
+        console.warn(`[MODULE ${mod.id}] Error:`, e);
+      }
     }
-  </style>
-</head>
-<body>
-  <div id="starfield"></div>
+    
+    // Резонанс
+    const resonances = findResonances(allArchetypes);
+    const text = generateResonanceText(input.name, resonances, results);
+    const confidence = Math.min(98, 60 + resonances.length * 12);
+    
+    document.getElementById('resonanceText').innerHTML = text;
+    document.getElementById('resonanceHighlights').innerHTML = resonances.slice(0, 6).map(r => 
+      `<span class="highlight-tag">✨ ${r}</span>`
+    ).join('');
+    document.getElementById('confidenceLevel').textContent = `Резонанс систем: ${confidence}%`;
+    
+    // Показ результатов
+    document.getElementById('results').classList.add('show');
+    setTimeout(() => {
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+    
+  } catch (e) {
+    console.error('Engine error:', e);
+    alert('Ошибка расчета: ' + e.message);
+  } finally {
+    btn.textContent = '🔮 Активировать резонанс';
+    btn.disabled = false;
+  }
+}
 
-  <div class="container">
-    <header>
-      <div class="logo">THAUMATRIX</div>
-      <div class="subtitle">ORACLE SYSTEM v2.0 // MULTI-MODULE RESONANCE ENGINE</div>
-    </header>
+// === ДВИЖОК РЕЗОНАНСА ===
+function findResonances(archetypes) {
+  const freq = {};
+  archetypes.forEach(a => freq[a] = (freq[a] || 0) + 1);
+  
+  return Object.entries(freq)
+    .filter(([_, count]) => count >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name]) => name);
+}
 
-    <section class="panel">
-      <div class="input-grid">
-        <div class="field">
-          <label>Идентификатор</label>
-          <input type="text" id="name" placeholder="ИМЯ" />
-        </div>
-        <div class="field">
-          <label>Дата инициализации</label>
-          <input type="date" id="date" />
-        </div>
-        <div class="field">
-          <label>Временная метка</label>
-          <input type="time" id="time" step="1" />
-        </div>
-        <div class="field geo-wrapper">
-          <label>Локация</label>
-          <input type="text" id="place" placeholder="ГОРОД" />
-          <button class="geo-btn" id="geoBtn">SYNC</button>
-          <div class="geo-status" id="geoStatus"></div>
-        </div>
-      </div>
-      <button class="calc-btn" id="calcBtn">ЗАПУСТИТЬ РАСЧЕТ</button>
-    </section>
-
-    <section class="results-panel" id="results">
-      <div class="module-card" id="card-numerology" style="display:none"><div class="module-title">01 // НУМЕРОЛОГИЯ</div><div class="result-grid" id="res-numerology"></div></div>
-      <div class="module-card" id="card-matrix" style="display:none"><div class="module-title">02 // МАТРИЦА СУДЬБЫ</div><div class="result-grid" id="res-matrix"></div></div>
-      <div class="module-card" id="card-tarot" style="display:none"><div class="module-title">03 // ТАРО: АРКАН</div><div class="result-grid" id="res-tarot"></div></div>
-      <div class="module-card" id="card-astrology" style="display:none"><div class="module-title">04 // АСТРОЛОГИЯ</div><div class="result-grid" id="res-astrology"></div></div>
-      <div class="module-card" id="card-runes" style="display:none"><div class="module-title">05 // РУНЫ</div><div class="result-grid" id="res-runes"></div></div>
-
-      <div class="resonance-box">
-        <div class="resonance-title">РЕЗОНАНСНЫЙ СИНТЕЗ</div>
-        <div class="tags" id="resonance-tags"></div>
-        <div class="oracle-text" id="oracle-output"></div>
-      </div>
-    </section>
-
-    <footer>THAUMATRIX CORE // STATIC DEPLOYMENT // 2026</footer>
-  </div>
-
-  <script type="module" src="./core/engine.js"></script>
-</body>
-</html>
+function generateResonanceText(name, resonances, results) {
+  const templates = [
+    `${name}, системы сходятся. Ваш путь пронизан энергией <strong>${resonances[0] || 'глубинной трансформации'}</strong>.`,
+    `То, что казалось случайным, обретает форму. ${resonances[1] ? `Ваша сила — в ${resonances[1].toLowerCase()}.` : ''}`,
+    `Астрологически вы ${results.astrology?.sun || 'искатель'}, а резонанс указывает на <strong>${resonances[0] || 'уникальный путь'}</strong>.`,
+    `Сейчас время ${results.biorhythms?.intuit > 50 ? 'внутреннего наблюдения и доверия интуиции' : 'активного действия и проявления воли'}.`,
+    `⚠️ Следующие 14 дней — окно высокой синхронизации. Не форсируйте события.`
+  ];
+  
+  return templates.filter(t => t.trim()).join('<br><br>');
+}
