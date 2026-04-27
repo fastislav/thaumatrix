@@ -1,7 +1,6 @@
 // core/engine.js
 
 // === ИМПОРТ МОДУЛЕЙ ===
-// Убедитесь, что файлы существуют в папке modules/
 import Numerology from '../modules/numerology.js';
 import Matrix from '../modules/matrix.js';
 import Tarot from '../modules/tarot.js';
@@ -12,171 +11,193 @@ const MODULES = [Numerology, Matrix, Tarot, Astrology, Runes];
 
 // === ИНИЦИАЛИЗАЦИЯ ===
 export function init() {
-  console.log('[THAUMATRIX] System Online');
-  initStars();
-  setupEvents();
+  console.log('🔮 Thaumatrix Engine v2.0 Loaded');
+  createCosmicBackground();
+  setupEventListeners();
 }
 
-function setupEvents() {
-  document.getElementById('calcBtn').addEventListener('click', runCalculation);
-  document.getElementById('geoBtn').addEventListener('click', syncLocation);
+function setupEventListeners() {
+  document.getElementById('calcBtn').addEventListener('click', runAnalysis);
+  document.getElementById('geoBtn').addEventListener('click', findCoordinates);
 }
 
-// === ГЕНЕРАЦИЯ ЗВЕЗД (ИСПРАВЛЕНО) ===
-function initStars() {
-  const container = document.getElementById('starfield');
+// === КОСМИЧЕСКИЙ ФОН (Звёзды + Метеоры + Планеты) ===
+function createCosmicBackground() {
+  const container = document.getElementById('cosmicBg');
   if (!container) return;
-  container.innerHTML = '';
-  const count = 120;
-  for (let i = 0; i < count; i++) {
+  
+  // Звёзды (100 шт)
+  for (let i = 0; i < 100; i++) {
     const star = document.createElement('div');
     star.className = 'star';
-    const size = Math.random() * 2 + 1;
-    star.style.width = `${size}px`;
-    star.style.height = `${size}px`;
-    star.style.left = `${Math.random() * 100}%`;
-    star.style.top = `${Math.random() * 100}%`;
-    star.style.animationDuration = `${Math.random() * 4 + 2}s`;
-    star.style.animationDelay = `${Math.random() * 5}s`;
+    star.style.left = Math.random() * 100 + '%';
+    star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+    star.style.animationDelay = Math.random() * 5 + 's';
     container.appendChild(star);
   }
+  
+  // Метеоры (5 шт)
+  for (let i = 0; i < 5; i++) {
+    const meteor = document.createElement('div');
+    meteor.className = 'meteor';
+    meteor.style.left = Math.random() * 100 + '%';
+    meteor.style.top = Math.random() * 50 + '%';
+    meteor.style.animationDuration = (Math.random() * 3 + 2) + 's';
+    meteor.style.animationDelay = (Math.random() * 10 + i * 5) + 's';
+    container.appendChild(meteor);
+  }
+  
+  // Планеты (уже есть в CSS, но можно добавить динамически)
+  const planets = [
+    { class: 'planet planet-1' },
+    { class: 'planet planet-2' },
+    { class: 'planet planet-3' },
+    { class: 'planet planet-4' }
+  ];
+  
+  planets.forEach(p => {
+    const planet = document.createElement('div');
+    planet.className = p.class;
+    container.appendChild(planet);
+  });
 }
 
-// === ГЕОЛОКАЦИЯ (ИСПРАВЛЕНО) ===
-window.geoData = { lat: 55.7558, lon: 37.6173, name: 'Москва' }; // Default
+// === ГЕОЛОКАЦИЯ (ПОИСК ГОРОДА) ===
+window.geoData = { lat: 55.7558, lon: 37.6173, name: 'Москва' };
 
-async function syncLocation() {
-  const input = document.getElementById('place');
+async function findCoordinates() {
+  const city = document.getElementById('birthPlace').value.trim();
   const status = document.getElementById('geoStatus');
-  const city = input.value.trim();
   
-  if (!city) { status.textContent = 'ВВЕДИТЕ ГОРОД'; status.className = 'geo-status'; return; }
+  if (!city) {
+    status.textContent = '❌ Введите название города';
+    status.className = 'geo-status error';
+    return;
+  }
   
-  status.textContent = 'ПОИСК СПУТНИКОВ...';
+  status.textContent = '⏳ Поиск координат...';
+  status.className = 'geo-status';
+  
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}&limit=1`);
-    const data = await res.json();
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}&limit=1`);
+    const data = await response.json();
     
-    if (data.length > 0) {
-      const p = data[0];
-      window.geoData = { lat: parseFloat(p.lat), lon: parseFloat(p.lon), name: p.display_name.split(',')[0] };
-      status.innerHTML = `SYNC OK: ${window.geoData.name} <br> [${window.geoData.lat.toFixed(2)}, ${window.geoData.lon.toFixed(2)}]`;
-      status.className = 'geo-status ok';
+    if (data && data.length > 0) {
+      const place = data[0];
+      window.geoData = {
+        lat: parseFloat(place.lat),
+        lon: parseFloat(place.lon),
+        name: place.display_name.split(',')[0]
+      };
+      
+      const parts = place.display_name.split(',');
+      const region = parts[1] ? parts[1].trim() : '';
+      const country = parts[parts.length - 1] ? parts[parts.length - 1].trim() : '';
+      
+      status.innerHTML = `✅ <strong>${window.geoData.name}</strong><br><small>${region}, ${country}<br>📍 ${window.geoData.lat.toFixed(2)}°, ${window.geoData.lon.toFixed(2)}°</small>`;
+      status.className = 'geo-status success';
     } else {
-      status.textContent = 'ЛОКАЦИЯ НЕ НАЙДЕНА';
-      status.className = 'geo-status';
+      status.textContent = '❌ Город не найден';
+      status.className = 'geo-status error';
     }
-  } catch (e) {
-    status.textContent = 'ОШИБКА СЕТИ';
-    status.className = 'geo-status';
+  } catch (error) {
+    status.textContent = '❌ Ошибка сети';
+    status.className = 'geo-status error';
   }
 }
 
-// === ГЛАВНЫЙ РАСЧЕТ ===
-async function runCalculation() {
-  const btn = document.getElementById('calcBtn');
+// === ГЛАВНЫЙ РАСЧЁТ ===
+async function runAnalysis() {
   const input = {
-    name: document.getElementById('name').value.trim() || 'SUBJECT_01',
-    date: document.getElementById('date').value,
-    time: document.getElementById('time').value || '12:00:00',
-    place: document.getElementById('place').value,
+    name: document.getElementById('fullName').value || 'Искатель',
+    date: document.getElementById('birthDate').value,
+    time: document.getElementById('birthTime').value || '12:00:00',
+    place: document.getElementById('birthPlace').value,
     geo: window.geoData
   };
-
-  if (!input.date) return alert('[ERROR] DATE REQUIRED');
-
-  btn.textContent = 'PROCESSING...';
+  
+  if (!input.date) {
+    alert('Введите дату рождения');
+    return;
+  }
+  
+  const btn = document.getElementById('calcBtn');
+  btn.textContent = '⏳ Анализ систем...';
   btn.disabled = true;
   
-  await new Promise(r => setTimeout(r, 400)); // UI delay
-
+  await new Promise(r => setTimeout(r, 300));
+  
   try {
     const results = {};
     let allArchetypes = [];
-
-    // 1. Запуск модулей
+    
+    // Запуск модулей
     for (const mod of MODULES) {
       try {
         const res = mod.calculate(input);
         results[mod.id] = res;
-        if (res?.archetypes) allArchetypes.push(...res.archetypes);
+        
+        if (res?.archetypes) {
+          allArchetypes.push(...res.archetypes);
+        }
         
         const container = document.getElementById(`res-${mod.id}`);
         const card = document.getElementById(`card-${mod.id}`);
+        
         if (container && mod.render && res) {
           container.innerHTML = mod.render(res);
           card.style.display = 'block';
         }
-      } catch (e) { console.warn(`[MODULE ${mod.id}] Error:`, e); }
+      } catch (e) {
+        console.warn(`[MODULE ${mod.id}] Error:`, e);
+      }
     }
-
-    // 2. Резонанс
-    const resonance = computeResonance(allArchetypes);
-    renderResonance(resonance);
-
-    // 3. Оракул
-    const oracleText = generateOracle(input, results, resonance);
-    document.getElementById('oracle-output').innerHTML = oracleText;
-
-    // 4. Показать
+    
+    // Резонанс
+    const resonances = findResonances(allArchetypes);
+    const text = generateResonanceText(input.name, resonances, results);
+    const confidence = Math.min(98, 60 + resonances.length * 12);
+    
+    document.getElementById('resonanceText').innerHTML = text;
+    document.getElementById('resonanceHighlights').innerHTML = resonances.slice(0, 6).map(r => 
+      `<span class="highlight-tag">✨ ${r}</span>`
+    ).join('');
+    document.getElementById('confidenceLevel').textContent = `Резонанс систем: ${confidence}%`;
+    
+    // Показ результатов
     document.getElementById('results').classList.add('show');
-    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
+    setTimeout(() => {
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+    
   } catch (e) {
-    console.error('[CORE] Critical Error:', e);
-    alert('[SYSTEM FAILURE] CHECK CONSOLE');
+    console.error('Engine error:', e);
+    alert('Ошибка расчета: ' + e.message);
   } finally {
-    btn.textContent = 'ЗАПУСТИТЬ РАСЧЕТ';
+    btn.textContent = '🔮 Активировать резонанс';
     btn.disabled = false;
   }
 }
 
 // === ДВИЖОК РЕЗОНАНСА ===
-function computeResonance(archetypes) {
+function findResonances(archetypes) {
   const freq = {};
   archetypes.forEach(a => freq[a] = (freq[a] || 0) + 1);
+  
   return Object.entries(freq)
-    .filter(([_, c]) => c >= 2)
+    .filter(([_, count]) => count >= 2)
     .sort((a, b) => b[1] - a[1])
     .map(([name]) => name);
 }
 
-function renderResonance(tags) {
-  const container = document.getElementById('resonance-tags');
-  if (tags.length === 0) {
-    container.innerHTML = '<span class="tag">NO CROSS-SYSTEM RESONANCE DETECTED</span>';
-    return;
-  }
-  container.innerHTML = tags.map(t => `<span class="tag">◈ ${t.toUpperCase()}</span>`).join('');
+function generateResonanceText(name, resonances, results) {
+  const templates = [
+    `${name}, системы сходятся. Ваш путь пронизан энергией <strong>${resonances[0] || 'глубинной трансформации'}</strong>.`,
+    `То, что казалось случайным, обретает форму. ${resonances[1] ? `Ваша сила — в ${resonances[1].toLowerCase()}.` : ''}`,
+    `Астрологически вы ${results.astrology?.sun || 'искатель'}, а резонанс указывает на <strong>${resonances[0] || 'уникальный путь'}</strong>.`,
+    `Сейчас время ${results.biorhythms?.intuit > 50 ? 'внутреннего наблюдения и доверия интуиции' : 'активного действия и проявления воли'}.`,
+    `⚠️ Следующие 14 дней — окно высокой синхронизации. Не форсируйте события.`
+  ];
+  
+  return templates.filter(t => t.trim()).join('<br><br>');
 }
-
-// === ЛОКАЛЬНЫЙ ОРАКУЛ (БЕЗ API) ===
-function generateOracle(input, results, resonance) {
-  const name = input.name;
-  const theme = resonance[0] || 'UNIVERSAL';
-  
-  const templates = {
-    leader: `${name}, системы фиксируют доминирующую частоту ЛИДЕРА. Ты здесь, чтобы структурировать хаос. Твоя сила в инициативе, но тень — в контроле. Ближайший цикл требует делегирования.`,
-    warrior: `${name}, зафиксирована энергия ВОИНА. Ты проходишь через фазу прорыва. Сопротивление среды временно. Действуй четко, но избегай фронтового импульса.`,
-    mystic: `${name}, резонанс указывает на МИСТИКА. Твой канал открыт через интуицию, а не логику. Знаки будут приходить во снах и случайных совпадениях. Записывай их.`,
-    wise_one: `${name}, частота МУДРЕЦА активна. Время анализа и паузы. Не форсируй события. Ответ придет через структурированное наблюдение.`,
-    creator: `${name}, зафиксирован поток ТВОРЦА. Реальность пластична для тебя сейчас. Завершай начатое, иначе энергия рассеется.`,
-    universal: `${name}, мультисистемный сканер не выявил жесткой доминанты. Это признак гибкости. Ты адаптер. Используй текущий момент для калибровки внутренних параметров.`
-  };
-
-  const base = templates[theme] || templates.universal;
-  
-  // Добавляем валидацию прошлого (эвристика)
-  const birthYear = new Date(input.date).getFullYear();
-  const age = new Date().getFullYear() - birthYear;
-  const cycleHit = [22, 29, 36, 44].some(c => Math.abs(age - c) <= 1);
-  
-  let validation = cycleHit 
-    ? `<br><br>⏳ <b>КАРМИЧЕСКИЙ ЦИКЛ:</b> Возраст ${age} лет совпадает с точкой пересмотра жизненного контракта (22/29/36/44 года). То, что казалось стабильным, требует обновления.`
-    : `<br><br>⏳ <b>ХРОНО-МАРКЕР:</b> Период 2019-2021 оставил структурный след в твоей матрице. Отпущенное тогда освободило ресурс для текущего этапа.`;
-
-  return `<b>// ORACLE OUTPUT</b><br>${base}${validation}<br><br><i>Confidence: ${85 + Math.floor(Math.random()*14)}%</i>`;
-}
-
-// Экспорт для запуска
-init();
