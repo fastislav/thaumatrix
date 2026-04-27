@@ -3,70 +3,215 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🔮 Thaumatrix — Modular Engine</title>
-  <link rel="stylesheet" href="assets/main.css">
+  <title>THAUMATRIX // ORACLE SYSTEM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: #0a0a0a;
+      --border: rgba(255, 255, 255, 0.12);
+      --text-main: #ffffff;
+      --text-muted: #888888;
+      --accent: #ffffff;
+      --glow: rgba(255, 255, 255, 0.15);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    /* === КОСМИЧЕСКИЙ ФОН === */
+    #starfield {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0; overflow: hidden;
+    }
+    .star {
+      position: absolute; background: #fff; border-radius: 50%;
+      opacity: 0; animation: twinkle linear infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 0.8; transform: scale(1); }
+    }
+
+    /* === UI === */
+    .container {
+      max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem;
+      position: relative; z-index: 1;
+    }
+
+    header { text-align: center; margin-bottom: 3rem; padding-top: 1rem; }
+    .logo {
+      font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 700;
+      letter-spacing: 4px; text-transform: uppercase; color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+    .subtitle { color: var(--text-muted); font-size: 0.85rem; letter-spacing: 1px; }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .input-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .field { display: flex; flex-direction: column; gap: 0.4rem; }
+    .field label {
+      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+      color: var(--text-muted); font-weight: 600;
+    }
+    .field input {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.8rem; color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+    .field input:focus {
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--glow);
+    }
+
+    .geo-wrapper { position: relative; }
+    .geo-btn {
+      position: absolute; right: 6px; top: 26px;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-main); padding: 0.4rem 0.6rem; border-radius: 4px;
+      cursor: pointer; font-size: 0.75rem; transition: all 0.2s;
+    }
+    .geo-btn:hover { background: var(--accent); color: #000; }
+    .geo-status { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; min-height: 14px; }
+    .geo-status.ok { color: #4ade80; }
+
+    .calc-btn {
+      width: 100%; padding: 1rem; background: transparent;
+      border: 1px solid var(--accent); color: var(--accent);
+      font-family: 'JetBrains Mono', monospace; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
+      transition: all 0.2s; border-radius: 6px;
+    }
+    .calc-btn:hover { background: var(--accent); color: #000; }
+    .calc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* === RESULTS === */
+    .results-panel { display: none; animation: fadeIn 0.5s ease; }
+    .results-panel.show { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .module-card {
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.2rem; margin-bottom: 1rem;
+    }
+    .module-title {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+      text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);
+      margin-bottom: 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem;
+    }
+    .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.8rem; }
+    .result-item {
+      background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 6px;
+      text-align: center; border: 1px solid transparent; transition: border 0.2s;
+    }
+    .result-item:hover { border-color: var(--border); }
+    .result-value { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 700; color: var(--text-main); }
+    .result-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-top: 0.2rem; }
+
+    .resonance-box {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.5rem; text-align: center; margin-top: 1.5rem;
+    }
+    .resonance-title {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+      text-transform: uppercase; letter-spacing: 2px; color: var(--text-main);
+      margin-bottom: 1rem;
+    }
+    .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 1rem; }
+    .tag {
+      background: rgba(255,255,255,0.08); padding: 0.3rem 0.6rem; border-radius: 4px;
+      font-size: 0.75rem; color: var(--text-muted);
+    }
+    .oracle-text {
+      font-size: 0.95rem; line-height: 1.7; color: #d0d0d0; text-align: left;
+      background: rgba(0,0,0,0.4); padding: 1rem; border-radius: 6px;
+      border-left: 2px solid var(--accent);
+    }
+
+    footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-size: 0.7rem; letter-spacing: 1px; }
+    
+    @media (max-width: 600px) {
+      .logo { font-size: 1.4rem; }
+      .input-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-  <div class="stars-container" id="stars"></div>
-
-  <header>
-    <div class="logo">🔮 Thaumatrix</div>
-    <p style="color: #a0a0a0;">Библиотека знаний • Резонанс систем</p>
-  </header>
+  <div id="starfield"></div>
 
   <div class="container">
-    <section class="input-section">
-      <div class="form-grid">
-        <div><label>✨ Имя</label><input type="text" id="name" placeholder="Иван" /></div>
-        <div><label>📅 Дата</label><input type="date" id="date" /></div>
-        <div><label>⏰ Время</label><input type="time" id="time" step="1" /></div>
-        <div class="geo-wrapper">
-          <label>📍 Город</label>
-          <input type="text" id="place" placeholder="Москва" />
-          <button class="geo-btn" id="geoBtn">📍</button>
+    <header>
+      <div class="logo">THAUMATRIX</div>
+      <div class="subtitle">ORACLE SYSTEM v2.0 // MULTI-MODULE RESONANCE ENGINE</div>
+    </header>
+
+    <section class="panel">
+      <div class="input-grid">
+        <div class="field">
+          <label>Идентификатор</label>
+          <input type="text" id="name" placeholder="ИМЯ" />
+        </div>
+        <div class="field">
+          <label>Дата инициализации</label>
+          <input type="date" id="date" />
+        </div>
+        <div class="field">
+          <label>Временная метка</label>
+          <input type="time" id="time" step="1" />
+        </div>
+        <div class="field geo-wrapper">
+          <label>Локация</label>
+          <input type="text" id="place" placeholder="ГОРОД" />
+          <button class="geo-btn" id="geoBtn">SYNC</button>
           <div class="geo-status" id="geoStatus"></div>
         </div>
       </div>
-      <button class="calculate-btn" id="calcBtn">🔮 Активировать Резонанс</button>
+      <button class="calc-btn" id="calcBtn">ЗАПУСТИТЬ РАСЧЕТ</button>
     </section>
 
-    <section class="results-section" id="results">
-      
-      <!-- Карточки модулей (будут заполняться автоматически) -->
-      <div class="module-card" id="card-numerology" style="display:none">
-        <div class="module-title">🔢 Нумерология</div>
-        <div class="result-grid" id="res-numerology"></div>
-      </div>
-      
-      <div class="module-card" id="card-matrix" style="display:none">
-        <div class="module-title">🌀 Матрица Судьбы</div>
-        <div class="result-grid" id="res-matrix"></div>
-      </div>
-      
-      <!-- Добавьте карточки для остальных модулей по аналогии -->
+    <section class="results-panel" id="results">
+      <div class="module-card" id="card-numerology" style="display:none"><div class="module-title">01 // НУМЕРОЛОГИЯ</div><div class="result-grid" id="res-numerology"></div></div>
+      <div class="module-card" id="card-matrix" style="display:none"><div class="module-title">02 // МАТРИЦА СУДЬБЫ</div><div class="result-grid" id="res-matrix"></div></div>
+      <div class="module-card" id="card-tarot" style="display:none"><div class="module-title">03 // ТАРО: АРКАН</div><div class="result-grid" id="res-tarot"></div></div>
+      <div class="module-card" id="card-astrology" style="display:none"><div class="module-title">04 // АСТРОЛОГИЯ</div><div class="result-grid" id="res-astrology"></div></div>
+      <div class="module-card" id="card-runes" style="display:none"><div class="module-title">05 // РУНЫ</div><div class="result-grid" id="res-runes"></div></div>
 
-      <!-- Резонанс -->
       <div class="resonance-box">
-        <div class="resonance-title">🌌 РЕЗОНАНС СИСТЕМ</div>
-        <div id="resonance-text" style="font-size:1.1rem; margin:1rem 0"></div>
-        <div id="resonance-tags" style="display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap"></div>
+        <div class="resonance-title">РЕЗОНАНСНЫЙ СИНТЕЗ</div>
+        <div class="tags" id="resonance-tags"></div>
+        <div class="oracle-text" id="oracle-output"></div>
       </div>
-
-      <!-- Локальный Оракул -->
-      <div class="module-card" id="oracle-section" style="display:none; border-color: var(--gold); background: rgba(255,209,102,0.05)">
-        <div class="module-title" style="color:var(--gold)">👁️ Голос Оракула</div>
-        <div id="oracle-text" style="line-height:1.8"></div>
-      </div>
-
     </section>
 
-    <footer>Thaumatrix • Библиотека эзотерических знаний © 2026</footer>
+    <footer>THAUMATRIX CORE // STATIC DEPLOYMENT // 2026</footer>
   </div>
 
-  <!-- Подключаем модульное ядро -->
-  <script type="module">
-    import { init } from './core/engine.js';
-    init();
-  </script>
+  <script type="module" src="./core/engine.js"></script>
 </body>
 </html>
