@@ -1,122 +1,119 @@
 // core/engine.js
+import { reduceNumber, cyrillicToNumber, parseDate } from './utils.js';
+import { findResonances, generateInsight } from './resonance.js';
+import Oracle from '../features/oracle-engine.js';
 
-// 1. Импортируем все модули (пока только Нумерология для теста)
+// Импортируем модули
 import Numerology from '../modules/numerology.js';
-import AIReport from '../features/ai-report.js';
+import Matrix from '../modules/matrix.js';
+// ... добавьте остальные импорты по мере создания
 
-// 2. Реестр всех систем
-const SYSTEMS = [
-  Numerology,
-  // Сюда потом добавим: Matrix, Tarot, Astro и т.д.
-];
+const MODULES = [Numerology, Matrix /*, Tarot, Runes... */];
 
-// 3. Инициализация (запускается при загрузке)
 export function init() {
-  console.log('🔮 Thaumatrix Engine Initialized');
-  setupEventListeners();
+  console.log('🔮 Thaumatrix Engine v2.0 Loaded');
+  setupUI();
   createStars();
 }
 
-function setupEventListeners() {
-  document.getElementById('calcBtn').addEventListener('click', runAnalysis);
-  document.getElementById('geoBtn').addEventListener('click', findCoordinates);
+function setupUI() {
+  document.getElementById('calcBtn')?.addEventListener('click', runAnalysis);
+  document.getElementById('geoBtn')?.addEventListener('click', findCoordinates);
 }
 
-// 4. Главная функция запуска
 async function runAnalysis() {
   const input = gatherInput();
-  if (!input.date) return alert('Введите дату!');
-
-  // Блокируем кнопку
-  const btn = document.getElementById('calcBtn');
-  btn.textContent = '⏳ Анализ систем...';
+  if (!input.date) return alert('Введите дату рождения');
   
-  // Даем браузеру отрисовать текст
-  await new Promise(r => setTimeout(r, 100));
-
+  const btn = document.getElementById('calcBtn');
+  btn.textContent = '⏳ Синхронизация систем...';
+  btn.disabled = true;
+  
+  await new Promise(r => setTimeout(r, 300)); // Небольшая задержка для анимации
+  
   try {
-    let allResults = {};
-    let allArchetypes = [];
-
+    const results = {};
+    
     // Запускаем каждый модуль
-    for (const system of SYSTEMS) {
-      if (system.isActive !== false) {
-        const result = system.calculate(input);
-        allResults[system.id] = result;
-        
-        // Собираем архетипы для резонанса
-        if (result.archetypes) {
-          allArchetypes.push(...result.archetypes);
-        }
-        
-        // Рендерим карточку модуля (если есть HTML элемент)
-        const container = document.getElementById(`res-${system.id}`);
-        if (container && system.render) {
-          container.innerHTML = system.render(result);
-          container.closest('.module-card').style.display = 'block';
+    for (const mod of MODULES) {
+      if (mod.calculate) {
+        results[mod.id] = mod.calculate(input);
+        // Рендерим карточку, если есть контейнер
+        const container = document.getElementById(`res-${mod.id}`);
+        if (container && mod.render) {
+          container.innerHTML = mod.render(results[mod.id]);
+          container.closest('.module-card')?.style.setProperty('display', 'block');
         }
       }
     }
-
-    // Запускаем ИИ-отчет (текстовый)
-    const aiPrompt = AIReport.generate(allResults, input);
-    document.getElementById('ai-prompt-box').innerText = aiPrompt;
-    document.getElementById('ai-section').style.display = 'block';
-
+    
+    // === РЕЗОНАНС ===
+    const resonances = findResonances(results);
+    const insight = generateInsight(input.name, resonances, results);
+    
+    document.getElementById('resonance-text').innerHTML = insight;
+    document.getElementById('resonance-tags').innerHTML = resonances
+      .map(r => `<span class="highlight-tag">✨ ${r}</span>`).join('');
+    
+    // === ЛОКАЛЬНЫЙ ОРАКУЛ (пока без API) ===
+    const oracleReport = Oracle.generate(input, results);
+    document.getElementById('oracle-text').innerHTML = oracleReport
+      .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+      .replace(/\n/g, '<br>');
+    document.getElementById('oracle-section').style.display = 'block';
+    
     // Показываем результаты
     document.getElementById('results').classList.add('show');
     document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
     
-    // Обновляем UI
-    document.getElementById('resonance-count').innerText = `Найдено ${allArchetypes.length} пересечений`;
-
   } catch (e) {
-    console.error(e);
+    console.error('Engine error:', e);
     alert('Ошибка расчета: ' + e.message);
   } finally {
     btn.textContent = '🔮 Активировать Резонанс';
+    btn.disabled = false;
   }
 }
 
-// Сбор данных из формы
 function gatherInput() {
   return {
-    name: document.getElementById('name').value,
-    date: document.getElementById('date').value,
-    time: document.getElementById('time').value,
-    place: document.getElementById('place').value,
-    geo: window.geoData || {} // Берем глобальные координаты
+    name: document.getElementById('name')?.value || 'Искатель',
+    date: document.getElementById('date')?.value,
+    time: document.getElementById('time')?.value || '12:00',
+    place: document.getElementById('place')?.value,
+    geo: window.geoData || { lat: 55.75, lon: 37.61 }
   };
 }
 
-// Вспомогательная функция звезд (копия из старого кода)
-function createStars() {
-  const sC = document.getElementById('stars');
-  for(let i=0; i<80; i++) {
-    const s = document.createElement('div');
-    s.className = 'star';
-    s.style.left = Math.random()*100 + '%';
-    s.style.width = s.style.height = (Math.random()*2 + 1) + 'px';
-    s.style.animationDuration = (Math.random()*3 + 2) + 's';
-    s.style.animationDelay = Math.random()*5 + 's';
-    sC.appendChild(s);
-  }
-}
-
-// Глобальная функция для геолокации (доступна из HTML)
+// Геолокация (глобальная функция)
 window.findCoordinates = async function() {
   const city = document.getElementById('place').value;
   const status = document.getElementById('geoStatus');
-  status.textContent = "⏳ Поиск...";
+  if (!city) return;
   
+  status.textContent = "⏳ Поиск...";
   try {
     const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${city}&limit=1`);
     const data = await res.json();
     if (data.length > 0) {
-      window.geoData = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
-      status.innerHTML = `✅ ${data[0].display_name.split(',')[0]} <br> <small>${window.geoData.lat.toFixed(2)}, ${window.geoData.lon.toFixed(2)}</small>`;
-    } else {
-      status.textContent = "❌ Не найдено";
+      window.geoData = { 
+        lat: parseFloat(data[0].lat), 
+        lon: parseFloat(data[0].lon),
+        name: data[0].display_name.split(',')[0]
+      };
+      status.innerHTML = `✅ ${window.geoData.name}<br><small>${window.geoData.lat.toFixed(2)}°, ${window.geoData.lon.toFixed(2)}°</small>`;
     }
-  } catch(e) { status.textContent = "❌ Ошибка сети"; }
+  } catch(e) { status.textContent = "❌ Ошибка"; }
+}
+
+// Звездный фон
+function createStars() {
+  const container = document.getElementById('stars');
+  if (!container) return;
+  for (let i = 0; i < 80; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.cssText = `left:${Math.random()*100}%;animation-duration:${Math.random()*3+2}s;animation-delay:${Math.random()*5}s`;
+    container.appendChild(star);
+  }
 }
