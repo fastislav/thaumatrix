@@ -1,55 +1,50 @@
-// modules/matrix.js
-import { reduceNumber } from '../core/utils.js';
-
+// modules/tarot.js
 export default {
-  id: 'matrix',
-  name: '🌀 Матрица Судьбы',
-  
+  id: 'tarot',
+  name: '🃏 Таро: Аркан Судьбы',
+
   calculate(input) {
     if (!input.date) return null;
-    const { year, month, day } = parseDateSimple(input.date);
+    const { year, month, day } = parseDate(input.date);
+
+    // Формула расчета Старшего Аркана
+    // (День + Месяц + Год) % 22
+    const yearSum = String(year).split('').reduce((a, b) => a + Number(b), 0);
+    let sum = day + month + yearSum;
     
-    const sum = n => n > 22 ? reduceNumber(n) : n;
-    const yearSum = reduceNumber(String(year).split('').reduce((a,b)=>a+Number(b), 0));
+    while (sum > 22) {
+      sum = String(sum).split('').reduce((a, b) => a + Number(b), 0);
+    }
+    if (sum === 0) sum = 22; // Шут
+
+    const card = CARDS[sum - 1];
     
     return {
-      day: sum(day),
-      month: sum(month), 
-      year: sum(yearSum),
-      center: sum(day + month + yearSum),
-      karma: sum(day + month),
-      talent: sum(month + yearSum),
-      money: sum(day + yearSum),
-      love: sum(sum(day) + sum(month)),
-      archetypes: getMatrixArchetypes(sum(day), sum(month), sum(yearSum))
+      arcanaNum: sum,
+      arcanaName: card.name,
+      description: card.desc,
+      archetypes: card.archetypes // Отправляем в резонанс
     };
   },
-  
+
   render(data) {
     return `
-      <div class="result-item"><div class="result-value">${data.center}</div><div class="result-label" style="color:var(--gold)">Центр</div></div>
-      <div class="result-item"><div class="result-value">${data.day}</div><div class="result-label">День</div></div>
-      <div class="result-item"><div class="result-value">${data.month}</div><div class="result-label">Месяц</div></div>
-      <div class="result-item"><div class="result-value">${data.year}</div><div class="result-label">Год</div></div>
-      <div class="result-item"><div class="result-value">${data.karma}</div><div class="result-label">Карма</div></div>
-      <div class="result-item"><div class="result-value">${data.talent}</div><div class="result-label">Талант</div></div>
+      <div class="result-item" style="grid-column: span 2;">
+        <div class="result-value">${data.arcanaNum}. ${data.arcanaName}</div>
+        <div class="result-label">${data.description}</div>
+      </div>
     `;
   }
 };
 
-function parseDateSimple(str) {
-  const [y,m,d] = str.split('-').map(Number);
-  return {year:y, month:m, day:d};
-}
-
-function getMatrixArchetypes(d, m, y) {
-  // Упрощенная связь арканов с архетипами
-  const map = {
-    1:'leader', 2:'diplomat', 3:'creator', 4:'builder', 5:'seeker',
-    6:'mentor', 7:'wise_one', 8:'manager', 9:'humanist', 10:'leader',
-    11:'wise_one', 12:'mystic', 13:'warrior', 14:'diplomat', 15:'creator',
-    16:'warrior', 17:'mystic', 18:'mystic', 19:'leader', 20:'wise_one',
-    21:'humanist', 22:'seeker'
-  };
-  return [map[d], map[m], map[y]].filter(Boolean);
-}
+// БАЗА ЗНАНИЙ ТАРО
+const CARDS = [
+  { num: 1, name: "Маг", desc: "Волшебник, начало пути, сила воли", archetypes: ["leader", "creator"] },
+  { num: 2, name: "Жрица", desc: "Тайные знания, интуиция", archetypes: ["mystic", "wise_one"] },
+  { num: 3, name: "Императрица", desc: "Плодородие, изобилие, природа", archetypes: ["creator", "mentor"] },
+  { num: 4, name: "Император", desc: "Власть, структура, закон", archetypes: ["leader", "warrior"] },
+  { num: 5, name: "Иерофант", desc: "Традиции, обучение, вера", archetypes: ["wise_one", "mentor"] },
+  { num: 6, name: "Влюбленные", desc: "Выбор сердца, любовь, гармония", archetypes: ["creator", "diplomat"] },
+  { num: 7, name: "Колесница", desc: "Победа, движение, контроль", archetypes: ["warrior", "leader"] },
+  { num: 8, name: "Сила", desc: "Внутренняя мощь, терпение", archetypes: ["warrior", "wise_one"] },
+  { num: 9, name: "Отшельник", desc: "Мудрость, уединение, поиск", archetypes: ["wise_one", "
