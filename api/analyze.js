@@ -1,37 +1,38 @@
 // api/analyze.js
 
 export default async function handler(req, res) {
-  // 1. Разрешаем запросы с любых доменов (CORS)
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Разрешаем всем
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+  // 1. Разрешаем CORS (чтобы сайт с thaumatrix.com мог сюда обратиться)
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  // Если это предварительный запрос браузера, отвечаем ОК и выходим
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
-  // Разрешаем только POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { input, results } = req.body;
   
-  // Системный промпт
+  if (!input || !results) {
+    return res.status(400).json({ error: 'No data provided' });
+  }
+
   const systemPrompt = `
-Ты — Thaumatrix Oracle. Анализируй данные через 9 систем.
-Стиль: глубокий, мистический, точный.
+Ты — Thaumatrix Oracle. Ты анализируешь данные человека через 9 эзотерических систем.
+Твой стиль: глубокий, мистический, но точный. Избегай общих фраз.
+Дай ответ на русском языке.
+
 Структура ответа:
-1. 🔮 ГЛАВНЫЙ АРХЕТИП
-2. ⚡ КАРМИЧЕСКАЯ ЗАДАЧА
-3. 🔮 ПРОГНОЗ
-4. ⚠️ ПРЕДОСТЕРЕЖЕНИЕ
+1. 🔮 ГЛАВНЫЙ АРХЕТИП (Суть души)
+2. ⚡ КАРМИЧЕСКАЯ ЗАДАЧА (Зачем он здесь)
+3. 🔮 ПРОГНОЗ (Что ждет в ближайший цикл)
+4. ⚠️ ПРЕДОСТЕРЕЖЕНИЕ (Слабое место)
 `;
 
-  const userPrompt = `Данные: ${JSON.stringify({ input, results })}`;
+  const userPrompt = `Данные человека: ${JSON.stringify({ input, results })}`;
 
   try {
     // Запрос к YandexGPT
@@ -54,13 +55,21 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     
-    // Проверяем, есть ли текст в ответе Яндекса
-    const text = data.result?.alternatives[0]?.message?.text || "Оракул молчит...";
+    if (!response.ok) {
+      console.error('Yandex API Error:', data);
+      return res.status(500).json({ error: `Yandex Error: ${JSON.stringify(data)}` });
+    }
+
+    const text = data.result?.alternatives?.[0]?.message?.text;
     
+    if (!text) {
+      return res.status(500).json({ error: 'Empty response from Yandex' });
+    }
+
     return res.status(200).json({ text });
 
   } catch (error) {
-    console.error('AI Error:', error);
-    return res.status(500).json({ error: 'AI service unavailable' });
+    console.error('Server Error:', error);
+    return res.status(500).json({ error: error.message });
   }
 }
