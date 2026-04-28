@@ -451,30 +451,45 @@
         }
       },
       {
-        id: 'astrology', name: '🌌 Астрология',
-        calculate(input) {
-          if(!input.date) return null;
-          const {year, month, day} = parseDate(input.date);
-          const timeParts = (input.time || '12:00').split(':');
-          const hour = parseInt(timeParts[0]) || 12;
-          const minute = parseInt(timeParts[1]) || 0;
-          const lat = input.geo?.lat || 55.75;
-          const lon = input.geo?.lon || 37.61;
-          
-          const sun = getSunSign(day, month, year);
-          const asc = getAscendant(day, month, year, hour, minute, lat, lon);
-          const moonPhase = getMoonPhase(day, month, year);
-          
-          return { sun, asc, moon: moonPhase, archetypes: [sun, asc].filter(Boolean) };
-        },
-        render(d) { 
-          const createItem = (val, label, key) => {
-            const displayValue = val || 'Не определено';
-            return `<div class="result-item" onclick="window.openModal('astrology','${key}','${displayValue}')"><div class="result-value">${displayValue}</div><div class="result-label">${label}</div></div>`;
-          };
-          return createItem(d.sun, '☀️ Солнце', 'sun') + createItem(d.asc, '🌅 Асцендент', 'asc');
-        }
-      },
+  id: 'astrology', name: '🌌 Астрология',
+  async calculate(input) {
+    if(!input.date) return null;
+    const lat = input.geo?.lat || 55.75;
+    const lon = input.geo?.lon || 37.61;
+    
+    try {
+      // Отправляем данные на наш сервер для точного расчета
+      const response = await fetch('/api/astro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: input.date,
+          time: input.time || '12:00',
+          lat, lon
+        })
+      });
+      
+      if (!response.ok) throw new Error('Server error');
+      const data = await response.json();
+      
+      return { 
+        sun: data.sun, 
+        asc: data.asc, 
+        archetypes: [data.sun, data.asc].filter(Boolean) 
+      };
+    } catch (e) {
+      console.error('Astro API error:', e);
+      return { sun: 'Ошибка', asc: 'Ошибка', archetypes: [] };
+    }
+  },
+  render(d) { 
+    const createItem = (val, label, key) => {
+      const displayValue = val || 'Не определено';
+      return `<div class="result-item" onclick="window.openModal('astrology','${key}','${displayValue}')"><div class="result-value">${displayValue}</div><div class="result-label">${label}</div></div>`;
+    };
+    return createItem(d.sun, '☀️ Солнце', 'sun') + createItem(d.asc, '🌅 Асцендент', 'asc');
+  }
+}
       {
         id: 'runes', name: 'ᚚ Руны',
         calculate(input) {
