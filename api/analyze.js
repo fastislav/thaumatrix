@@ -1,26 +1,40 @@
 // api/analyze.js
+
 export default async function handler(req, res) {
+  // 1. Разрешаем запросы с любых доменов (CORS)
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Разрешаем всем
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+
+  // Если это предварительный запрос браузера, отвечаем ОК и выходим
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  // Разрешаем только POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { input, results } = req.body;
   
+  // Системный промпт
   const systemPrompt = `
-Ты — Thaumatrix Oracle. Ты анализируешь данные человека через 9 эзотерических систем.
-Твой стиль: глубокий, мистический, но точный. Избегай общих фраз.
-Дай ответ на русском языке.
-
+Ты — Thaumatrix Oracle. Анализируй данные через 9 систем.
+Стиль: глубокий, мистический, точный.
 Структура ответа:
-1. 🔮 ГЛАВНЫЙ АРХЕТИП (Суть души)
-2. ⚡ КАРМИЧЕСКАЯ ЗАДАЧА (Зачем он здесь)
-3. 🔮 ПРОГНОЗ (Что ждет в ближайший цикл)
-4. ⚠️ ПРЕДОСТЕРЕЖЕНИЕ (Слабое место)
+1. 🔮 ГЛАВНЫЙ АРХЕТИП
+2. ⚡ КАРМИЧЕСКАЯ ЗАДАЧА
+3. 🔮 ПРОГНОЗ
+4. ⚠️ ПРЕДОСТЕРЕЖЕНИЕ
 `;
 
-  const userPrompt = `Данные человека: ${JSON.stringify({ input, results })}`;
+  const userPrompt = `Данные: ${JSON.stringify({ input, results })}`;
 
   try {
+    // Запрос к YandexGPT
     const response = await fetch('https://llm.api.cloud.yandex.net/foundationModels/v1/completion', {
       method: 'POST',
       headers: {
@@ -38,10 +52,12 @@ export default async function handler(req, res) {
       })
     });
 
-    const result = await response.json();
-    return res.status(200).json({ 
-      text: result.result.alternatives[0].message.text 
-    });
+    const data = await response.json();
+    
+    // Проверяем, есть ли текст в ответе Яндекса
+    const text = data.result?.alternatives[0]?.message?.text || "Оракул молчит...";
+    
+    return res.status(200).json({ text });
 
   } catch (error) {
     console.error('AI Error:', error);
