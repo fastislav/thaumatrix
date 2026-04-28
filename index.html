@@ -246,22 +246,22 @@
       numerology: {
         name: 'Нумерология Пифагора',
         source: 'Древнегреческая традиция, VI век до н.э.',
-        description: 'Система Пифагора основана на вибрации чисел от 1 до 9. Каждое число несет определенную энергию и архетип.',
+        description: 'Система Пифагора основана на вибрации чисел от 1 до 9.',
         details: {
-          lifePath: { title: 'Число Жизненного Пути', calc: 'Складывается день + месяц + год рождения, затем цифры сводятся к одному числу (1-9) или мастер-числам 11, 22.', meaning: 'Показывает главную задачу жизни, таланты и направление развития.' },
-          destiny: { title: 'Число Судьбы (Имени)', calc: 'Буквы полного имени переводятся в цифры по таблице Пифагора и суммируются до однозначного числа.', meaning: 'Раскрывает потенциал, данный от рождения, и кармические задачи.' },
-          soul: { title: 'Число Души', calc: 'Разность между Числом Пути и Числом Судьбы (по модулю).', meaning: 'Внутренние желания, мотивация, то, к чему стремится душа.' }
+          lifePath: { title: 'Число Пути', calc: 'День+Месяц+Год -> сумма цифр.', meaning: 'Главная задача жизни.' },
+          destiny: { title: 'Число Судьбы', calc: 'Сумма букв имени.', meaning: 'Потенциал и кармические задачи.' },
+          soul: { title: 'Число Души', calc: 'Разность Пути и Судьбы.', meaning: 'Внутренние желания.' }
         }
       },
       matrix: {
         name: 'Матрица Судьбы',
-        source: 'Современная российская система, синтез нумерологии и Таро',
-        description: 'Метод основан на 22 Старших Арканах Таро и расчетах по дате рождения.',
+        source: 'Современная система, синтез нумерологии и Таро',
+        description: 'Метод основан на 22 Старших Арканах Таро.',
         details: {
-          center: { title: 'Центр Матрицы', calc: 'Сумма Дня + Месяца + Года (приведенных к 22 арканам).', meaning: 'Главная энергия личности, ключ к пониманию судьбы.' },
-          day: { title: 'День (Социум)', calc: 'День рождения, приведенный к 22 арканам.', meaning: 'Как вас видят окружающие, социальная маска.' },
-          month: { title: 'Месяц (Талант)', calc: 'Месяц рождения, приведенный к 22 арканам.', meaning: 'Врожденные таланты и способности.' },
-          year: { title: 'Год (Карма)', calc: 'Сумма цифр года рождения, приведенная к 22 арканам.', meaning: 'Кармический долг, опыт прошлых воплощений.' }
+          center: { title: 'Центр', calc: 'Сумма Дня+Месяца+Года.', meaning: 'Главная энергия личности.' },
+          day: { title: 'День', calc: 'День рождения (до 22).', meaning: 'Социальная маска.' },
+          month: { title: 'Месяц', calc: 'Месяц рождения (до 22).', meaning: 'Таланты.' },
+          year: { title: 'Год', calc: 'Сумма цифр года (до 22).', meaning: 'Кармический долг.' }
         }
       },
       tarot: {
@@ -269,25 +269,25 @@
         source: 'Европейская традиция, XV-XVI век',
         description: 'Расчет личного Аркана по дате рождения.',
         details: {
-          arcana: { title: 'Личный Аркан', calc: 'День + Месяц + Сумма цифр года рождения. Если > 22, цифры складываются снова.', meaning: 'Ключевая энергия жизни, уроки и задачи.' }
+          arcana: { title: 'Личный Аркан', calc: 'День+Месяц+Год (цифры).', meaning: 'Ключевая энергия жизни.' }
         }
       },
       astrology: {
         name: 'Западная Астрология',
-        source: 'Вавилонская и эллинистическая традиция, 2000+ лет',
-        description: 'Положение Солнца, Луны и планет в момент рождения определяет характер и судьбу.',
+        source: 'Вавилонская и эллинистическая традиция',
+        description: 'Положение планет в момент рождения.',
         details: {
-          sun: { title: 'Солнце (Эго)', calc: 'Знак Зодиака определяется по дате рождения (Солнце входит в знак примерно 20-23 числа каждого месяца).', meaning: 'Основная личность, сознание, жизненная сила.' },
-          asc: { title: 'Асцендент (Восходящий знак)', calc: 'Зависит от точного времени рождения и географических координат. Рассчитывается по таблице домов.', meaning: 'Как вас видят другие, первое впечатление, социальная маска.' },
-          moon: { title: 'Луна (Эмоции)', calc: 'Фаза Луны рассчитывается по алгоритму Юлианского дня.', meaning: 'Эмоциональный мир, подсознание, интуиция.' }
+          sun: { title: 'Солнце', calc: 'Знак по дате рождения.', meaning: 'Основная личность.' },
+          asc: { title: 'Асцендент', calc: 'По времени и координатам.', meaning: 'Социальная маска.' },
+          moon: { title: 'Луна', calc: 'Фаза по Юлианскому дню.', meaning: 'Эмоции.' }
         }
       },
       runes: {
         name: 'Руны Старшего Футарка',
-        source: 'Скандинавская традиция, II-VIII век н.э.',
-        description: '24 руны алфавита Футарк несут древнюю мудрость и архетипические энергии.',
+        source: 'Скандинавская традиция',
+        description: '24 руны алфавита Футарк.',
         details: {
-          rune: { title: 'Руна Дня Рождения', calc: 'Сумма цифр даты рождения по модулю 24.', meaning: 'Энергия, сопровождающая человека всю жизнь.' }
+          rune: { title: 'Руна Дня', calc: 'Сумма даты % 24.', meaning: 'Энергия жизни.' }
         }
       }
     };
@@ -299,22 +299,25 @@
       const sys = KNOWLEDGE[systemId];
       const detail = sys.details[itemKey];
       
-      body.innerHTML = `
-        <h2 class="modal-system-title">${sys.name}</h2>
-        <div class="modal-section">
-          <h3>📊 ${detail.title}: <span style="color:var(--gold)">${data}</span></h3>
-          <p>${detail.meaning}</p>
-        </div>
-        <div class="modal-section">
-          <h3>🧮 Как рассчитано:</h3>
-          <p>${detail.calc}</p>
-        </div>
-        <div class="modal-source">
-          <strong>📚 Источник:</strong> ${sys.source}<br>
-          <small>${sys.description}</small>
-        </div>
-      `;
-      
+      if (!detail) {
+        body.innerHTML = `<h2 class="modal-system-title">Информация</h2><p>Детали для этого пункта скоро появятся.</p>`;
+      } else {
+        body.innerHTML = `
+          <h2 class="modal-system-title">${sys.name}</h2>
+          <div class="modal-section">
+            <h3>📊 ${detail.title}: <span style="color:var(--gold)">${data}</span></h3>
+            <p>${detail.meaning}</p>
+          </div>
+          <div class="modal-section">
+            <h3>🧮 Как рассчитано:</h3>
+            <p>${detail.calc}</p>
+          </div>
+          <div class="modal-source">
+            <strong>📚 Источник:</strong> ${sys.source}<br>
+            <small>${sys.description}</small>
+          </div>
+        `;
+      }
       overlay.classList.add('show');
     }
 
@@ -342,31 +345,20 @@
       return Math.floor(diff / oneDay);
     }
 
-    // === 6. АСТРОЛОГИЧЕСКИЕ РАСЧЕТЫ (ИСПРАВЛЕНО) ===
+    // === 6. АСТРОЛОГИЯ (ЛОКАЛЬНАЯ ФОРМУЛА) ===
     function getSunSign(day, month, year) {
       const cuspDates = [
-        { sign: 'Козерог', month: 1, day: 20 },
-        { sign: 'Водолей', month: 2, day: 19 },
-        { sign: 'Рыбы', month: 3, day: 20 },
-        { sign: 'Овен', month: 4, day: 20 },
-        { sign: 'Телец', month: 5, day: 21 },
-        { sign: 'Близнецы', month: 6, day: 21 },
-        { sign: 'Рак', month: 7, day: 22 },
-        { sign: 'Лев', month: 8, day: 23 },
-        { sign: 'Дева', month: 9, day: 23 },
-        { sign: 'Весы', month: 10, day: 23 },
-        { sign: 'Скорпион', month: 11, day: 22 },
-        { sign: 'Стрелец', month: 12, day: 22 }
+        { sign: 'Козерог', month: 1, day: 20 }, { sign: 'Водолей', month: 2, day: 19 },
+        { sign: 'Рыбы', month: 3, day: 20 }, { sign: 'Овен', month: 4, day: 20 },
+        { sign: 'Телец', month: 5, day: 21 }, { sign: 'Близнецы', month: 6, day: 21 },
+        { sign: 'Рак', month: 7, day: 22 }, { sign: 'Лев', month: 8, day: 23 },
+        { sign: 'Дева', month: 9, day: 23 }, { sign: 'Весы', month: 10, day: 23 },
+        { sign: 'Скорпион', month: 11, day: 22 }, { sign: 'Стрелец', month: 12, day: 22 }
       ];
-      
       for (let i = 0; i < cuspDates.length; i++) {
         const cusp = cuspDates[i];
         if (month === cusp.month) {
-          if (day < cusp.day) {
-            return cuspDates[i > 0 ? i - 1 : cuspDates.length - 1].sign;
-          } else {
-            return cusp.sign;
-          }
+          return day < cusp.day ? cuspDates[i > 0 ? i - 1 : cuspDates.length - 1].sign : cusp.sign;
         }
       }
       return 'Не определено';
@@ -378,31 +370,11 @@
       const lst = (100.46 + 0.985647 * dayOfYear + lon + 15 * (hour + minute/60)) % 360;
       const ram = lst * Math.PI / 180;
       const latRad = lat * Math.PI / 180;
-      const eclipticObliquity = 23.4397 * Math.PI / 180;
-      
-      const ascRadian = Math.atan2(
-        Math.cos(ram),
-        -Math.sin(ram) * Math.cos(eclipticObliquity) - Math.tan(latRad) * Math.sin(eclipticObliquity)
-      );
-      
+      const eps = 23.4397 * Math.PI / 180;
+      const ascRadian = Math.atan2(Math.cos(ram), -Math.sin(ram) * Math.cos(eps) - Math.tan(latRad) * Math.sin(eps));
       let ascDeg = ascRadian * 180 / Math.PI;
       if (ascDeg < 0) ascDeg += 360;
-      
-      const ascIndex = Math.floor(ascDeg / 30) % 12;
-      return signs[ascIndex];
-    }
-
-    function getMoonPhase(day, month, year) {
-      let c = 0, e = 0, jd = 0, b = 0;
-      if (month < 3) { year--; month += 12; }
-      ++month;
-      c = 365.25 * year; e = 30.6 * month;
-      jd = c + e + day - 694039.09; jd /= 29.5305882;
-      b = parseInt(jd); jd -= b;
-      b = Math.round(jd * 8);
-      if (b >= 8) b = 0;
-      const phases = ['🌑 Новолуние','🌒 Растущий серп','🌓 1-я четверть','🌔 Растущая','🌕 Полнолуние','🌖 Убывающая','🌗 3-я четверть','🌘 Убывающий серп'];
-      return phases[b];
+      return signs[Math.floor(ascDeg / 30) % 12];
     }
 
     // === 7. МОДУЛИ ===
@@ -418,8 +390,8 @@
           return { lifePath, destiny, soul: Math.abs(lifePath-destiny)||1, archetypes: [archMap[lifePath]||'Универсал'] };
         },
         render(d) { 
-          const createItem = (val, label, key) => `<div class="result-item" onclick="window.openModal('numerology','${key}','${val}')"><div class="result-value">${val}</div><div class="result-label">${label}</div></div>`;
-          return createItem(d.lifePath, 'Путь', 'lifePath') + createItem(d.destiny, 'Судьба', 'destiny') + createItem(d.soul, 'Душа', 'soul'); 
+          const item = (val, label, key) => `<div class="result-item" onclick="window.openModal('numerology','${key}','${val}')"><div class="result-value">${val}</div><div class="result-label">${label}</div></div>`;
+          return item(d.lifePath, 'Путь', 'lifePath') + item(d.destiny, 'Судьба', 'destiny') + item(d.soul, 'Душа', 'soul'); 
         }
       },
       {
@@ -432,8 +404,8 @@
           return { day:sum(day), month:sum(month), year:ySum, center:sum(day+month+ySum), karma:sum(day+month), talent:sum(month+ySum), money:sum(day+ySum), love:sum(sum(day)+sum(month)), archetypes:['Мудрец','Трансформация'] };
         },
         render(d) { 
-          const createItem = (val, label, key) => `<div class="result-item" onclick="window.openModal('matrix','${key}','${val}')"><div class="result-value">${val}</div><div class="result-label">${label}</div></div>`;
-          return createItem(d.center, 'Центр', 'center') + createItem(d.day, 'День', 'day') + createItem(d.month, 'Месяц', 'month') + createItem(d.year, 'Год', 'year'); 
+          const item = (val, label, key) => `<div class="result-item" onclick="window.openModal('matrix','${key}','${val}')"><div class="result-value">${val}</div><div class="result-label">${label}</div></div>`;
+          return item(d.center, 'Центр', 'center') + item(d.day, 'День', 'day') + item(d.month, 'Месяц', 'month') + item(d.year, 'Год', 'year'); 
         }
       },
       {
@@ -451,45 +423,27 @@
         }
       },
       {
-  id: 'astrology', name: '🌌 Астрология',
-  async calculate(input) {
-    if(!input.date) return null;
-    const lat = input.geo?.lat || 55.75;
-    const lon = input.geo?.lon || 37.61;
-    
-    try {
-      // Отправляем данные на наш сервер для точного расчета
-      const response = await fetch('/api/astro', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          date: input.date,
-          time: input.time || '12:00',
-          lat, lon
-        })
-      });
-      
-      if (!response.ok) throw new Error('Server error');
-      const data = await response.json();
-      
-      return { 
-        sun: data.sun, 
-        asc: data.asc, 
-        archetypes: [data.sun, data.asc].filter(Boolean) 
-      };
-    } catch (e) {
-      console.error('Astro API error:', e);
-      return { sun: 'Ошибка', asc: 'Ошибка', archetypes: [] };
-    }
-  },
-  render(d) { 
-    const createItem = (val, label, key) => {
-      const displayValue = val || 'Не определено';
-      return `<div class="result-item" onclick="window.openModal('astrology','${key}','${displayValue}')"><div class="result-value">${displayValue}</div><div class="result-label">${label}</div></div>`;
-    };
-    return createItem(d.sun, '☀️ Солнце', 'sun') + createItem(d.asc, '🌅 Асцендент', 'asc');
-  }
-}
+        id: 'astrology', name: '🌌 Астрология',
+        calculate(input) {
+          if(!input.date) return null;
+          const {year, month, day} = parseDate(input.date);
+          const timeParts = (input.time || '12:00').split(':');
+          const hour = parseInt(timeParts[0]) || 12;
+          const minute = parseInt(timeParts[1]) || 0;
+          const lat = input.geo?.lat || 55.75;
+          const lon = input.geo?.lon || 37.61;
+          const sun = getSunSign(day, month, year);
+          const asc = getAscendant(day, month, year, hour, minute, lat, lon);
+          return { sun, asc, archetypes: [sun, asc].filter(Boolean) };
+        },
+        render(d) { 
+          const item = (val, label, key) => {
+            const displayValue = val || 'Не определено';
+            return `<div class="result-item" onclick="window.openModal('astrology','${key}','${displayValue}')"><div class="result-value">${displayValue}</div><div class="result-label">${label}</div></div>`;
+          };
+          return item(d.sun, '☀️ Солнце', 'sun') + item(d.asc, '🌅 Асцендент', 'asc');
+        }
+      },
       {
         id: 'runes', name: 'ᚚ Руны',
         calculate(input) {
