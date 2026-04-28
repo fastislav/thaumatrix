@@ -339,51 +339,56 @@ async function fetchAIReport(input, results) {
 // ============================================
 // 7. ГЛАВНЫЙ ЗАПУСК
 // ============================================
-async function runAnalysis() {
-  const input = {
-    name: document.getElementById('fullName').value || 'Искатель',
-    date: document.getElementById('birthDate').value,
-    time: document.getElementById('birthTime').value || '12:00:00',
-    place: document.getElementById('birthPlace').value,
-    geo: window.geoData
-  };
-  
-  if (!input.date) {
-    alert('Введите дату рождения');
-    return;
-  }
-  
-  const btn = document.getElementById('calcBtn');
-  btn.textContent = '⏳ Анализ систем...';
-  btn.disabled = true;
-  
-  await new Promise(r => setTimeout(r, 300));
-  
+async function fetchAIReport(input, results) {
+  const output = document.getElementById('oracle-output');
+  if (!output) return;
+
+  output.innerHTML = '⏳ Связь с Оракулом...';
+  output.style.color = '#ffd166';
+
   try {
-    const results = {};
-    let allArchetypes = [];
-    
-    // Запуск всех модулей
-    MODULES.forEach(mod => {
-      try {
-        const res = mod.calculate(input);
-        results[mod.id] = res;
-        
-        if (res?.archetypes) {
-          allArchetypes.push(...res.archetypes);
-        }
-        
-        const container = document.getElementById(`res-${mod.id}`);
-        const card = document.getElementById(`card-${mod.id}`);
-        
-        if (container && mod.render && res) {
-          container.innerHTML = mod.render(res);
-          card.style.display = 'block';
-        }
-      } catch (e) {
-        console.warn(`[MODULE ${mod.id}] Error:`, e);
-      }
+    // ВАЖНО: Убедись, что адрес совпадает с твоим проектом на Vercel
+    // Если твой проект называется иначе, поправь URL ниже
+    const API_URL = 'https://thaumatrix.vercel.app/api/analyze'; 
+
+    console.log('[AI] Отправка запроса на:', API_URL);
+
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ input, results })
     });
+
+    console.log('[AI] Статус ответа:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Server Error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log('[AI] Получены данные:', data);
+
+    if (data.text) {
+      // Заменяем переносы строк на <br> для красивого вывода
+      output.innerHTML = data.text.replace(/\n/g, '<br>');
+      output.style.color = '#e5e5e5';
+    } else if (data.error) {
+      output.innerHTML = `⚠️ Ошибка ИИ: ${data.error}`;
+      output.style.color = '#ff6b6b';
+    } else {
+      output.innerHTML = '⚠️ Пустой ответ от сервера.';
+    }
+
+  } catch (e) {
+    console.error('[AI] Критическая ошибка:', e);
+    output.innerHTML = `⚠️ Ошибка соединения: ${e.message}. Проверь консоль (F12).`;
+    output.style.color = '#ff6b6b';
+  }
+}
     
     // Резонанс
     const resonances = findResonances(allArchetypes);
