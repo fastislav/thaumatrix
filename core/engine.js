@@ -311,7 +311,7 @@ async function fetchAIReport(input, results) {
   
   try {
     // ЗАМЕНИТЕ НА ВАШ URL ИЗ VERCEL!
-    const vercelUrl = 'https://thaumatrix.vercel.app/api/analyze';
+    const vercelUrl = 'https://thaumatrix-fastislavs-projects.vercel.app/';
     
     const response = await fetch(vercelUrl, {
       method: 'POST',
